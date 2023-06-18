@@ -1,8 +1,4 @@
-# Statistical-Computing
-
-Materials for the course STAT3701 Introduction to Statistical Computing by Charlie Geyer at the University of Minnesota.
-
-
+# Python for Data Analysis, 3rd Edition
 
 Materials and IPython notebooks for "Python for Data Analysis, 3rd
 Edition" by Wes McKinney, published by O'Reilly Media. Book content
