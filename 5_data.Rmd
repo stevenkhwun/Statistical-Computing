@@ -1,0 +1,1038 @@
+---
+title: "Stat 3701 Lecture Notes: Data"
+author: "Charles J. Geyer"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    number_sections: true
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+  pdf_document:
+    number_sections: true
+---
+
+> The combination of some data and an aching desire for an answer does not
+> ensure that a reasonable answer can be extracted from a given body of data.
+>
+> — John W. Tukey (the first of six "basics" against statistician's hubrises)
+>      in "Sunset Salvo", *American Statistician*, 40, 72–76 (1986).
+>
+> quoted by the `fortunes` package
+
+![xkcd:1781 Artifacts](artifacts.png){title="I didn&#39;t even realize you could HAVE a data set made up entirely of outliers."}
+
+# License
+
+This work is licensed under a Creative Commons
+Attribution-ShareAlike 4.0 International License
+(https://creativecommons.org/licenses/by-sa/4.0/).
+
+# R
+
+ * The version of R used to make this document is `r getRversion()`.
+
+ * The version of the `rmarkdown` package used to make this document is
+   `r packageVersion("rmarkdown")`.
+
+ * The version of the `MASS` package used to make this document is
+   `r packageVersion("MASS")`.
+
+ * The version of the `quantreg` package used to make this document is
+   `r packageVersion("quantreg")`.
+
+ * The version of the `rvest` package used to make this document is
+   `r packageVersion("rvest")`.
+
+ * The version of the `jsonlite` package used to make this document is
+   `r packageVersion("jsonlite")`.
+
+ * The version of the `pkgsearch` package used to make this document is
+   `r packageVersion("pkgsearch")`.
+
+ * The version of the `RSQLite` package used to make this document is
+   `r packageVersion("RSQLite")`.
+
+ * The version of the `DBI` package used to make this document is
+   `r packageVersion("DBI")`.
+
+ * The version of the `dplyr` package used to make this document is
+   `r packageVersion("dplyr")`.
+
+```{r libraries}
+library(MASS)
+library(quantreg)
+library(rvest)
+library(jsonlite)
+library(pkgsearch)
+library(dplyr)
+```
+
+# Data
+
+## Data Frames
+
+Statistics or "data science" starts with data.  Data can come in many forms
+but it often comes in a data frame — or at least something R can turn into
+a data frame.  As we saw at the end of the handout about matrices, arrays,
+and data frames, the two R functions most commonly used to input data into
+data frames are `read.table` and `read.csv`.  We will see some more later.
+
+## Data Artifacts, Errors, Problems
+
+### Introduction
+
+> Anything which uses science as part of its name isn't: political science,
+> creation science, computer science.
+>
+> — [Hal Abelson](https://en.wikipedia.org/wiki/Hal_Abelson)
+
+Presumably he would have added "data science" if the term had existed when
+he said that.  Statistics doesn't get off lightly either because
+of the journal [*Statistical Science*](https://imstat.org/sts/).
+
+It is the dirty little secret of science, business, statistics,
+and "data science" is that there are a lot of errors in almost all data
+when they get to a data analyst, whatever his or her job title may be.
+
+Hence, *the most important skill* of a data analyst (whatever his or her
+job title may be) is [IMHO](https://en.wiktionary.org/wiki/IMHO)
+knowing how to find errors in data.  If you can't do that, anything else
+you may be able to do has no point.
+[GIGO](https://en.wikipedia.org/wiki/Garbage_in,_garbage_out).
+
+But this is a secret because businesses don't like to admit they make errors,
+and neither do scientists or anyone else who generates data.  So the data
+clean up always takes place behind the scenes.  Any publicly available
+data set has already been cleaned up.
+
+Thus we look at a made-up data set (I took an old data set,
+the R dataset `growth` in the [CRAN](https://cran.r-project.org) package `fda`
+and introduced errors of the kind I have seen in real data sets).
+
+As we shall see. There are no R functions or packages that help with data
+errors.  You just have to think hard and use logic (both logic in your thinking
+and R logical operators).
+
+### Overview
+
+```{r}
+growth <- read.csv("https://www.stat.umn.edu/geyer/3701/data/growth.csv",
+    stringsAsFactors = FALSE)
+class(growth)
+names(growth)
+sapply(growth, class)
+```
+The variables whose names start with `HT` are heights at the indicated age
+in years.  `SITE` and `SEX` are
+```{r}
+sort(unique(growth$SITE))
+sort(unique(growth$SEX))
+```
+both categorical despite the latter being coded with integers.  We will have
+to figure all that out.
+
+### Missing Data
+
+The first tool we use is `grep`.  This command has
+[a weird name inherited from unix](https://en.wikipedia.org/wiki/Grep).
+It (and its relatives documented on the same help page) is the R command 
+for matching text strings (and for doing search and replace).
+
+```{r}
+is.ht <- grep("HT", names(growth))
+foo <- growth[is.ht]
+foo <- as.matrix(foo)
+apply(foo, 2, range)
+```
+Try again.
+```{r}
+apply(foo, 2, range, na.rm = TRUE)
+```
+Clearly $-999$ and $0$ are not valid heights. What's going on?
+
+Many statistical computing systems — I don't want to say "languages" because
+many competitors to R are not real computer languages — do not have a
+built-in way to handle missing data, like R's predecessor S has had since its
+beginning.  So users pick an impossible value to indicate missing data.
+But why some NA, some $-999$, and some $0$?
+
+```{r}
+hasNA <- apply(foo, 1, anyNA)
+has999 <- apply(foo == (-999), 1, any)
+has0 <- apply(foo == 0, 1, any)
+sort(unique(growth$SITE[hasNA]))
+sort(unique(growth$SITE[has999]))
+sort(unique(growth$SITE[has0]))
+```
+So clearly the different "sites" coded missing data differently.
+Now that we understand that we can
+
+ * fix the different missing data codes, and
+
+ * be on the lookout for what else the different "sites" may have done
+   differently.
+
+Fix.
+```{r}
+foo[foo == -999] <- NA
+foo[foo == 0] <- NA
+min(foo, na.rm = TRUE)
+```
+
+### Impossible Data
+
+#### Finding the Problems
+
+Clearly, people don't decrease in height as they age (at least when they are
+young).  So that is another sanity check.
+```{r}
+bar <- apply(foo, 1, diff)
+sum(bar < 0)
+```
+Hmmmmm.  Didn't work because of the missing data.  Try again.
+```{r}
+bar <- apply(foo, 1, function(x) {
+    x <- x[! is.na(x)]
+    diff(x)
+})
+class(bar)
+```
+according to the documentation to `apply` it returns a list when the function
+returns vectors of different lengths for different "margins" (here rows).
+```{r}
+any(sapply(bar, function(x) any(x < 0)))
+```
+So we do have some impossible data.  Is it just slightly impossible or very
+impossible?
+```{r}
+baz <- sort(unlist(lapply(bar, function(x) x[x < 0])))
+length(baz)
+range(baz)
+```
+The `r max(baz)` may be a negligible error, but the `r min(baz)` is highly
+impossible.  We've got work to do on this issue.
+
+#### Fixing the Problems
+
+At this point anyone (even me) would be tempted to just give up using R
+or any other computer language to work on this issue.  It is just too messy.
+Suck the data into a spreadsheet or other editor, fix it by hand, and be done
+with it.
+
+But this is not reproducible and not scalable.  There is no way anyone
+(even the person doing the data editing) can reproduce exactly what they
+did or explain what they did.  So why should we trust that?  We shouldn't.
+Moreover, for "big data" it is a nonstarter.  A human can fix a little bit
+of the data, but we need an automatic process if we are going to fix all the
+data.  Hence we keep plugging away with R.
+
+Any negative increment between heights may be because of either of the
+heights being subtracted being wrong.  And just looking at those two
+numbers, we cannot tell which is wrong.  So let us also look at he two
+numbers to either side (if there are such).
+
+This job is so messy I think we need loops.
+```{r error=TRUE}
+qux <- NULL
+for (i in 1:nrow(foo))
+    for (j in seq(1, ncol(foo) - 1))
+        if (foo[i, j + 1] < foo[i, j]) {
+            below <- if (j - 1 >= 1) foo[i, j - 1] else NA
+            above <- if (j + 2 <= ncol(foo)) foo[i, j + 2] else NA
+            qux <- rbind(qux, c(below, foo[i, j], foo[i, j + 1], above))
+        }
+qux
+```
+That didn't work.  Forgot about the `NA`'s.  Try again.
+
+```{r}
+qux <- NULL
+for (i in 1:nrow(foo)) {
+    x <- foo[i, ]
+    x <- x[! is.na(x)]
+    d <- diff(x)
+    jj <- which(d < 0)
+    for (j in jj) {
+        below <- if (j - 1 >= 1) x[j - 1] else NA
+        above <- if (j + 2 <= length(x)) x[j + 2] else NA
+        qux <- rbind(qux, c(below, x[j], x[j + 1], above))
+    }
+}
+qux
+```
+
+In line 1 it looks like the data enterer transposed digits.  These data
+would make sense if the 38.0 was actually 83.0.
+In line 2 it looks like the data enterer had an off-by-one error.
+These data would make sense if the 185.2 was actually 175.2.
+In fact, those are the two kinds of errors I put in the data.
+But in real life, we wouldn't know about the kinds of all of the errors
+in the data.
+There might be other kinds.  Or our guess about these kinds might be wrong.
+
+At this point and perhaps long before, we would have gone back to the data
+source and asked if the data are correctable at the source.  Perhaps the
+data were entered correctly and corrupted later and we can get the original
+version.  But the kinds of errors we think we found are apparently data
+entry errors.  So there may be no correct data available.
+
+In lines 26 and 27 we notice that the errors are negligible (only 0.1 in size).
+Perhaps those we can ignore.  They might just be different rounding before
+data entry.
+
+In catching these errors — it is pretty clear that there is no way we
+can "correct" these errors if correct data are unavailable — we don't want
+to be clumsy and introduce more error.  We want to use the best methods
+we can.  We're statisticians, so perhaps we should use statistics.
+We need to use the whole data for an individual to identify the errors
+for that individual.
+
+So let's go back and find which individuals have erroneous data.
+And while we are at it, let's skip errors less than 0.3 in size.
+```{r}
+qux <- NULL
+for (i in 1:nrow(foo)) {
+    x <- foo[i, ]
+    x <- x[! is.na(x)]
+    d <- diff(x)
+    jj <- which(d <= -0.2)
+    for (j in jj) {
+        below <- if (j - 1 >= 1) x[j - 1] else NA
+        above <- if (j + 2 <= length(x)) x[j + 2] else NA
+        qux <- rbind(qux, c(i, below, x[j], x[j + 1], above))
+    }
+}
+qux
+```
+
+So let's try a bit of statistical modeling.  We know there is a problem
+with individual 1, so lets work on him or her (we still don't know what
+the codes are for `SEX`).
+
+This is always a good idea.  Focus on getting one thing right before moving
+on.  I could tell many stories about people coming to me for help with data
+analysis, and the only problem they had was trying to do too much at once
+so there was no way to tell what was wrong with what they were doing.
+At the end, you need to have processed all of the data and done it
+automatically.  But you don't have to start that way.
+
+So individual 1 data.
+```{r fig.align='center'}
+age <- as.numeric(sub("HT", "", colnames(foo)))
+age
+plot(age, foo[1, ], ylab = "height")
+```
+It is pretty clear looking at the picture which points are the gross errors.
+But can we get statistics to tell us that?
+
+The one thing we know we don't want to use is the usual sort of linear models
+(those fit by `lm`) because the "errors" are not normal.  We want what is
+called "robust" or "resistant" regression.
+
+The R command `??robust` turns up the commands `lqs` and `rlm` in the `MASS`
+(a "recommended" package that comes with every R installation)
+package and the command `line` in the `stats` package
+(a core package that comes with every R installation).
+The `line` function is not going to be helpful because clearly the growth
+curves curve.  So we want to use either `lqs` or `rlm`.  Both are complicated.
+Let us just try `lqs` because it comes first in alphabetical order.
+```{r fig.align='center'}
+plot(age, foo[1, ], ylab = "height")
+# R function lqs requires library(MASS) unless already done
+lout <- lqs(foo[1, ] ~ poly(age, degree = 6))
+curve(predict(lout, newdata = data.frame(age = x)), add = TRUE)
+```
+Humph!  Doesn't seem to fit these data well.  Try `rlm`.
+```{r fig.align='center'}
+plot(age, foo[1, ], ylab = "height")
+# R function rlm requires library(MASS) unless already done
+rout <- rlm(foo[1, ] ~ poly(age, degree = 6))
+curve(predict(lout, newdata = data.frame(age = x)), add = TRUE)
+```
+Neither of these work because polynomials don't asymptote.  Polynomial
+regression is a horrible tool for curves that asymptote.
+
+Some googling suggested the function `smooth` in the `stats` package.
+On reading the documentation for that, it is much more primitive and
+harder to use.  But it may work, so let's try it.
+```{r fig.align='center'}
+plot(age, foo[1, ], ylab = "height")
+y <- foo[1, ]
+x <- age[! is.na(y)]
+y <- y[! is.na(y)]
+sout <- smooth(y)
+sally <- splinefun(x, sout)
+curve(sally, add = TRUE)
+```
+Not robust enough.
+
+More googling discovers the [CRAN Task View for Robust Statistical Methods](https://cran.r-project.org/web/views/Robust.html) in which the only mention
+of splines is the CRAN package `quantreg`.  So we try that.
+```{r fig.align='center'}
+plot(age, foo[1, ], ylab = "height")
+y <- foo[1, ]
+x <- age[! is.na(y)]
+y <- y[! is.na(y)]
+lambda <- 0.5 # don't repeat yourself (DRY rule)
+# R function rqss  requires library(quantreg) unless already done
+qout <- rqss(y ~ qss(x, constraint = "I", lambda = lambda))
+curve(predict(qout, newdata = data.frame(x = x)),
+    from = min(x), to = max(x), add = TRUE)
+```
+The model fitting function `rqss` and its method for the generic function
+`predict` were a lot fussier than those for `lqs` and `rlm`.  Like with
+using `smooth` we had to remove the `NA` values by hand rather than just
+let the model fitting function take care of them (because `rqss` couldn't
+take care of them and gave a completely incomprehensible error message).  And
+we had to add optional arguments `from` and `to` to the `curve` function
+because `predict.rqss` refused to extrapolate beyond the range of the
+data (this time giving a comprehensible error message).
+
+Anyway, we seem to have got what we want.  Now we can compute robust residuals.
+```{r}
+rresid <- foo[1, ] - as.numeric(predict(qout, newdata = data.frame(x = age)))
+rbind(height = foo[1, ], residual = rresid)
+```
+The robust residuals calculated this way are all small except for the two
+obvious gross errors.  The only one large in absolute value
+(except for the gross errors) is at the left end of the data, and this
+is not surprising.  All smoothers have trouble at the ends where there
+is only data on one side to help.
+
+In the fitting we had to choose the `lambda` argument to the `qss` function
+by hand (because that is what the help page `?qss` says to do), and it did not
+even tell us whether large `lambda` means more smooth or less smooth.
+But with some help from what `lambda` does to the residuals, we got
+a reasonable choice (and perhaps a lot smaller would also do, but
+we won't bother with more experimentation).
+
+So we want to apply this operation to all the data.
+```{r error=TRUE}
+resid <- function(y) {
+    idx <- (! is.na(y))
+    x <- age[idx]
+    y <- y[idx]
+    stopifnot(length(x) == length(y))
+    qout <- rqss(y ~ qss(x, constraint = "I", lambda = lambda))
+    r <- y - as.numeric(predict(qout, newdata = data.frame(x = x)))
+    result <- rep(NA_real_, length(idx))
+    result[idx] <- r
+    result
+}
+bar <- apply(foo, 1, resid)
+```
+
+Didn't work.  Here we have hit a bizarre bug that I have not been able to
+isolate.  It does occur in R function `rqss`.  The fact that the error
+message is incomprehensible means it is not checking its arguments well enough
+or that it has an outright bug.  But it still may be that the bug is in
+my code.  But if I use a loop instead of `apply`
+```{r good}
+resids <- matrix(NA_real_, nrow = nrow(foo), ncol = ncol(foo))
+for (i in 1:nrow(foo)) {
+    y <- foo[i, ]
+    idx <- (! is.na(y))
+    x <- age[idx]
+    y <- y[idx]
+    stopifnot(length(x) == length(y))
+    qout <- rqss(y ~ qss(x, constraint = "I", lambda = lambda))
+    r <- y - as.numeric(predict(qout, newdata = data.frame(x = x)))
+    result <- rep(NA_real_, length(idx))
+    result[idx] <- r
+    resids[i, ] <- result
+}
+```
+it works.  We do get a different warning (rather than an error), but
+we also get residuals.  The fact that the very same code works when we
+don't use `apply` and doesn't work when we do use `apply` suggests that
+R function `rqss` is buggy.  But it does not *prove* that.  (To *prove*
+it we would actually have to find the bug and show that fixing the bug
+fixes the problem.)
+
+Maybe if we change `lambda` we can get rid of the warning.
+```{r gooder}
+lambda <- 0.4
+<<good>>
+```
+Bingo!  That's enough of that.  Let us declare that we have robust residuals.
+```{r}
+all(is.na(resids) == is.na(foo))
+```
+
+Now we need to select a cutoff
+```{r}
+range(resids, na.rm = TRUE)
+stem(resids)
+```
+
+That didn't show much.
+```{r}
+bigresid <- abs(as.vector(resids))
+bigresid <- bigresid[bigresid > 1]
+stem(log10(bigresid))
+```
+
+That is still confusing.  I had hoped there would be an obvious separation
+between small OK residuals (less than 1, which is what we have already removed)
+and the big bad residuals.  But it seems to be a continuum.  Let us decide
+that all of the residuals greater than 0.8 on the log scale, which is
+$10^{0.8} = `r 10^(0.8)`$ without logs are bad.
+
+```{r}
+outies <- log10(abs(resids)) > 0.8
+outies[is.na(outies)] <- FALSE
+foo[outies] <- NA
+```
+
+And now we should redo our whole analysis above and see how big our problems
+still are.
+```{r}
+qux <- NULL
+for (i in 1:nrow(foo)) {
+    x <- foo[i, ]
+    x <- x[! is.na(x)]
+    d <- diff(x)
+    jj <- which(d <= -0.2)
+    for (j in jj) {
+        below <- if (j - 1 >= 1) x[j - 1] else NA
+        above <- if (j + 2 <= length(x)) x[j + 2] else NA
+        qux <- rbind(qux, c(i, below, x[j], x[j + 1], above))
+    }
+}
+qux
+```
+Some of these look quite confusing.  It is not clear what is going on.
+Let's stop here, even though we are not completely satisfied.  This is
+enough time spent on this one issue on a completely made up example.
+
+### Codes
+
+We still have to figure out what `SEX == 1` and `SEX == 2` mean.
+And, wary of different sites doing different things, let us look at this
+per site.  There should be height differences at the largest age recorded.
+```{r fig.align='center'}
+maxht <- apply(foo, 1, max, na.rm = TRUE)
+sitesex <- with(growth, paste(SITE, SEX))
+unique(sitesex)
+boxplot(split(maxht, sitesex), ylab = "maximum height")
+```
+So we see another problem.  Sites A, B, and C coded the taller sex
+(male, presumably) as 1, but site D coded them as 2.
+So we have to fix that.
+```{r fig.align='center'}
+growth$SEX[growth$SITE == "D"] <- 3 - growth$SEX[growth$SITE == "D"]
+sort(unique(growth$SEX))
+sitesex <- with(growth, paste(SITE, SEX))
+boxplot(split(maxht, sitesex), ylab = "maximum height")
+```
+Looks OK now.
+
+### Summary
+
+Finding errors in data is really, really hard.  But it is essential.
+
+Our example was hard, we still aren't sure we fixed all the errors.
+And I cheated.  I put the errors in the data in the first place, and
+then I went and found them (or most of them — it is just impossible to
+tell whether some of the data entry errors that result in small changes
+are errors or not).
+
+This example would have been much harder if I did not know what kinds of
+errors were in the data.
+
+# Data Scraping
+
+One source of data is the World Wide Web.  In general, it is very hard
+to read data off of web pages.  But there is a lot of data there, so it
+is very useful.
+
+The language HTML in which web pages are coded, is not that easy to parse
+automatically.  There is a CRAN package `xml2` that reads and parses XML
+data including HTML data.  But it is so hard to use that it is beyond
+the scope of this course.  For an example from a more advanced course,
+see [these notes](https://www.stat.umn.edu/geyer/8054/notes/scrape.html#scraping-data-from-html").
+
+Reading data from the web is much easier when the data
+
+ * are in an HTML table (surrounded by HTML elements \<TABLE\> and \</TABLE\>)
+   and
+
+ * the table does not use any stupid tricks for visual look — it is a pure
+   data table.  Another way to say this is that all of the presentation
+   is in CSS; the HTML is pure data structure.
+
+In the original version of these notes we used
+R function `htmltab` in CRAN package `htmltab` but it got kicked of of CRAN
+for "policy violations".  So we are going to switch to using R package
+`rvest` which is part of the tidyverse, so better supported.
+This package actually uses package `xml2` under the hood, but it makes
+it easier to use.
+
+We are still going to stick to just extracting data from tables.
+Here's how `rvest` does that.
+```{r snarf, error=TRUE}
+u <- "https://www.ncaa.com/rankings/volleyball-women/d1/ncaa-womens-volleyball-rpi/"
+# all three R functions in the following command require library(rvest)
+# unless already done
+foo <- read_html(u) |> html_element("table") |> html_table()
+class(foo)
+dim(foo)
+head(foo)
+```
+
+It just grabs the data and puts it in an R dataframe (actually a tibble
+because it is a tidyverse function, but there isn't much difference).
+
+This uses a pipeline [discussed in a section below](#the-r-pipeline-operator).
+
+The pipeline is a bit more complicated than using R function `htmltab`
+(which is no longer available).  Now we need three functions in our pipeline.
+The first reads the web page, the second finds the table in the web page,
+and the third converts it to a data frame.
+
+Because there was only one HTML table in the document, we got one tibble.
+Otherwise we could have used a more complicated selection to get the
+table we wanted (beyond the scope of this course, read about it in the
+package vignette for `rvest`) or we would have gotten an R list containing
+tibbles for each table in the document.
+
+# Web Services
+
+Some web sites have API's that allow computers to talk to them (not just
+people look at them).
+
+Here is an example using the GitHub public API.
+It is copied from the vignette `json-apis` for
+the CRAN package `jsonlite` (for those who don't know JSON is the most
+popular data interchange format (for computers to talk to computers)).
+```{r jason}
+# R function fromJSON requires library(jsonlite) if not already done
+foo <- fromJSON("https://api.github.com/users/cjgeyer/repos")
+names(foo)
+```
+Hmmmmm.  An incredible amount of stuff there, most of which I don't understand
+even though I am a long time github user.
+
+But
+```{r}
+foo$name
+```
+are the names of my github public repos.
+
+Of course, to do anything nontrivial you have to understand the web service.
+Read up on their API, and so forth.
+
+The only point we are making here is that CRAN has the packages to support
+this stuff.
+
+# Searching CRAN
+
+There used to be a JSON API for searching CRAN.  This course covered it
+the last time it was taught, but it is now defunct.  It says it has been
+replaced by R function `advanced_search` in R package `pkgsearch`.
+So we illustrate that.
+```{r cran, cache=TRUE}
+# function advanced_search requires library(pkgsearch) unless already done
+foo <- advanced_search("Geyer", size = 100)
+class(foo)
+dim(foo)
+names(foo)
+```
+Woof!  `r nrow(foo)` CRAN packages, but maybe not all of them are by me.
+```{r cran-show}
+foo
+```
+Some of these are false positives (authored by other people named Geyer).
+Let's eliminate those.
+```{r cran-elim}
+class(foo$package_data)
+is.list(foo$package_data)
+length(foo$package_data)
+names(foo$package_data[[1]])
+is.maintainer <- sapply(foo$package_data,
+     function(x) grepl("Charles J. Geyer", x$Maintainer))
+is.author <- sapply(foo$package_data,
+     function(x) grepl("Charles J. Geyer|Charles Geyer", x$Author))
+bar <- subset(foo, is.maintainer | is.author)
+class(bar)
+bar$package
+```
+
+# Databases
+
+## History
+
+I am not an expert on the history of databases, but at least know there are
+phases to this history.  Most of this relies on
+the [Wikipedia article](https://en.wikipedia.org/wiki/Database)
+but has some different emphases.
+
+The history is divided into four eras, or generations,
+which overlap:
+
+ * the dinosaur era (1960's) where there were large databases
+   but they were clumsy to use and relied on highly complicated
+   and usually buggy code written by highly trained programmers,
+
+ * the relational and SQL database era (1970's through 1990's) had
+   the following features (not all of which arrived at the
+   same time in the same products):
+
+    - relational databases ([Wikipedia article](https://en.wikipedia.org/wiki/Relational_database)), which to users look like real math:
+    stored tables act like mathematical relations that are
+    "programmed" using mathematical logic via
+
+    - SQL (acronym for *Structured Query Language* but pronounced
+    like the English word "sequel"; [Wikipedia article](https://en.wikipedia.org/wiki/SQL)), a standardized computer language for
+    relational database operations, a language just like R or C++
+    except just for database operations,
+
+    - ACID (acronym for *Atomicity, Consistency, Isolation, Durability*, pronounced like the English word "acid"; [Wikipedia article](https://en.wikipedia.org/wiki/ACID_(computer_science))) which describes
+    the highly reliable transactions that are found in modern
+    so-called SQL databases, like Oracle (and many other products),
+ 
+ * the noSQL era (2000's) in which all of the great ideas of the
+   relational database era were dropped, putting programmers back
+   in the dinosaur era or worse, all in the name of scaling to
+   internet scale
+   ([Wikipedia article](https://en.wikipedia.org/wiki/NoSQL)),
+   leading examples of which are Amazon's Dynamo, Apache Cassandra,
+   CouchDB, MongoDB, Redis, HBase, and MemcacheDB,
+
+ * the newSQL era (now,
+   [Wikipedia article](https://en.wikipedia.org/wiki/NewSQL))
+   has the best of both worlds, relational, SQL, ACID, and highly
+   scalable, a leading example is Google Spanner.
+
+So while in the 2000's it looked like SQL was old hat and all
+"data scientists" needed to learn about noSQL that is now looking
+dated, although a lot of web services run on noSQL databases.
+
+A word about pronunciation: sometimes SQL is "sequel" and sometimes
+S-Q-L (sounding the letters).  In "Microsoft SQL server", the SQL
+is always "sequel".  In Oracle MySQL server, the SQL is always S-Q-L
+so this is pronounced "my-S-Q-L".  This was originally open source
+software before acquired by Oracle; its free software successor
+(fork) is MariaDB.
+
+## SQLite
+
+For learning SQL the greatest thing since sliced bread is SQLite,
+a relational database with full SQL support that runs as a user
+application.  It is just a software library backed by a file on disk.
+So you can do little database applications with no expensive
+database.  And you can learn on it.
+
+The author of SQLite pronounces it S-Q-L-ite "like a mineral"
+but does not object to other pronunciations.
+
+## R and SQL and SQLite
+
+The R package that talks to all SQL databases is CRAN package `DBI`
+(for database interface).  The R package that makes SQLite available
+to R is CRAN package `RSQLite`.  
+
+## Dplyr
+
+R package `dplyr` (which is part of the "tidyverse") does the amazing trick
+of making it unnecessary (almost) to use SQL to talk to SQL databases.  The
+best introduction to this package is the
+[main package vignette](https://dplyr.tidyverse.org/articles/dplyr.html)
+or the [chapter on it in the book *R for Data Science*](https://r4ds.had.co.nz/transform.html).
+
+In particular, the main functions in the package and all the jobs they
+do are summarized in the list in the section
+[Single Table Verbs](https://dplyr.tidyverse.org/articles/dplyr.html#single-table-verbs) in the vignette.  We are not going to illustrate all of those
+functions, so if you want to do more with `dplyr` you need to read the
+vignette.
+
+This is a package for data munging.  Originally, it worked on data in
+R data frames and did not do anything that base R cannot do but did it
+in different ways that were considered by the package author,
+[Hadley Wickham](https://hadley.nz/), to be simpler, more elegant, and
+easier to use than the base R methods.
+
+But over time R package `dplyr` got a lot more sophisticated.  Now it can
+do all of its operations not only on R data frames but also on *tables in
+SQL databases!*  It can write SQL so you don't have to!
+
+Moreover, when it is working with SQL databases, it actually does all of the
+work in the database so R does not have to deal with big data, only with the
+final results.  This is really quite tricky, so we won't even try to explain
+it, just leave this by saying it is really cool.
+
+Nevertheless. R package `dplyr` does not know everything there is to know
+about SQL.  [This web page](https://solutions.rstudio.com/db/r-packages/dplyr/)
+says
+
+> As well as working with local in-memory data stored in data frames,
+> `dplyr` also works with remote on-disk data stored in databases.
+> This is particularly useful in two scenarios:
+>
+>  * Your data is already in a database.
+>
+>  * You have so much data that it does not all fit into memory simultaneously and you need to use some external storage engine.
+>
+> (If your data fits in memory, there is no advantage to putting it in a database; it will only be slower and more frustrating.)
+
+and also says
+
+> To interact with a database you usually use SQL, the Structured Query Language. SQL is over 40 years old, and is used by pretty much every database in existence. The goal of dbplyr is to automatically generate SQL for you so that you're not forced to use it. However, SQL is a very large language, and dbplyr doesn't do everything.
+
+and
+
+> However, in the long run, I highly recommend you at least learn the basics of SQL. It's a valuable skill for any data scientist, and it will help you debug problems if you run into problems with `dplyr`'s automatic translation. 
+
+But we won't try to teach SQL here (there are lots of books and videos and
+whatnot that do this).  We will just show you some `dplyr` working on a
+database.
+
+## SQL Database Example
+
+### The SQLite Database
+
+First we go get a SQLite database.
+```{r sqlite}
+fs <- "https:/www.stat.umn.edu/geyer/8054/data/cran-info.sqlite"
+ft <- "cran-info.sqlite"
+if (! file.exists(ft)) download.file(fs, ft)
+```
+
+Then we start up a connection to this database.
+```{r sqlite.connect}
+# the following R command requires that R packages DBI and RSQLite be
+# installed but because we use the :: syntax they do not need to be loaded,
+# that is, we do not need library(DBI) or library(RSQLite)
+mydb <- DBI::dbConnect(RSQLite::SQLite(), dbname = ft)
+```
+
+This database has four tables
+```{r show.tables}
+DBI::dbListTables(mydb)
+```
+
+### Starting to Use Dplyr in the Example
+
+We turn tables in the database into `dplyr` thingummies as follows.
+```{r make.tables}
+# R function tbl requires library(dplyr) unless already done
+# many of the R functions in this section are also in this library
+depends <- tbl(mydb, "depends")
+imports <- tbl(mydb, "imports")
+linking <- tbl(mydb, "linking")
+suggest <- tbl(mydb, "suggests")
+depends
+```
+And all four tables look the same.  Each has two columns named `packfrom`
+and `packto` both of which are CRAN packages, one of which needs the other
+(the `packfrom` needs the `packto`).  The reason for the four separate
+tables is that these dependencies are of four different types, listed in
+four different fields of the DESCRIPTION file of the `packfrom` package.
+These are
+
+ * The `Depends` gives packages that will be attached before the current
+   package (the `packfrom`) when R function `library` or R function `require`
+   is called. 
+
+ * The `Imports` gives packages whose namespaces are imported from (as
+   specified in the NAMESPACE file) but which do not need to be attached
+   — that is, R functions in the `packto` package are called by R functions
+   in the `packfrom` package, but the `packfrom` package is not attached.
+
+ * The `LinkingTo` gives R packages that have header files needed to compile
+   its C/C++ code (this is very specialized, few CRAN packages do this).
+
+ * The `Suggests` gives R packages that are not necessarily needed but rather
+   are used only in examples, tests, or vignettes (not in normal usage of the
+   package).
+
+Since these are all different, we should perhaps treat them all differently,
+but for this example we are going to treat them all the same.  The problem
+we want to do is count all references to a package (all appearances of
+a package in the `packto` column of any of the four tables).
+
+A reasonable question is why are the data in this form?  The reason is that
+SQL databases have only one data structure: tables, which are equivalent to
+what R calls data frames.  If we had these data in R, we could think of
+a lot of other ways to structure the data.  In an SQL database, we cannot.
+(Well there is one obvious other structure: just one table with an extra
+column that says which type of dependence.)
+
+Here goes
+```{r dplyr-doit}
+foo <- union_all(depends, imports) |>
+    union_all(linking) |>
+    union_all(suggest) |>
+    count(packto, sort = TRUE)
+foo
+```
+R functions `union_all` and `count` here are from R package `dplyr`.
+The former works just like R function `cbind` in base R, but it works
+on the tables in the database (pasting them together *in the database*
+not in R).  The latter issues a lot of complicated SQL that also works
+*in the database* to do what we want.
+
+Unlike R function `cbind` R function `union_all` only takes two arguments.
+Hence the complicated syntax above.
+
+Unlike R function `union`, R function `union_all` does not remove duplicates.
+It is not clear (this being a toy problem) whether we should use `union_all`
+or `union`.  The tables `depends`, `imports`, and `suggests` are not supposed
+to have any duplicates (and I think CRAN enforces this).  But `linking`
+is radically different and could have rows duplicating rows in any of the
+others.  So `union_all` says we are counting the duplicate rows.
+
+When we check whether CRAN actually enforces this, we see they don't.
+```{r check.union}
+intersect(depends, imports)
+```
+So we should switch to `union` rather than `union_all` for the first three.
+Perhaps we still want `union_all` for `linking`.
+
+### The R Pipe Operator
+
+The R operator `|>` is the pipe operator.  It does function composition.
+```{r show-pipe}
+quote(x |> f() |> g() |> h(y))
+```
+Each left-hand side of `|>` is made the hidden first argument of the
+function call on the right-hand side of the pipe.
+
+ * so `x |> f()` gets turned into `f(x)`
+
+ * and when that gets piped into `g()` it gets turned into `g(f(x))`
+
+ * and when that gets piped into `h(y)` it gets turned into `h(g(f(x)), y)`
+
+R package `dplyr` is especially written to make maximal use of pipelines.
+Almost every function in the package has first argument that is a dataframe
+or the equivalent (here tables in the database) and returns an object of
+the same kind, so we just move these objects through the pipeline transforming
+them as they go.
+
+Pipelines are considered easier to read because they read left to right
+rather than inside out.  You do not have to use them, but all of the
+`dplyr` literature does use them.  (A lot of `dplyr` examples use the
+older pipe operator `%>%` from R package `magrittr` which has the [coolest name
+of any R package ever](https://en.wikipedia.org/wiki/The_Treachery_of_Images)
+but has been made mostly obsolete by the addition
+of a pipe operator to base R.)
+
+Pipelines in computer languages do the same thing as the notion of
+[composition of mathematical
+functions](https://en.wikipedia.org/wiki/Function_composition)
+The mathematical composition operator is $\circ$.  The only difference is
+that it goes in the other direction of the pipeline notation.  In our toy
+example, the math notation for this function is
+$$
+   h(g(f(\,\cdot\,)), y)
+$$
+or — when we use composition notation —
+$$
+   h(\,\cdot\,, y) \circ g \circ f
+$$
+(so the order of processing is right to left).
+The point isn't that you want to switch back and forth between R notation
+and mathematics notation.  The point is that this is *real math*.
+
+We should note that the pipe operator does not have to stuff the left-hand
+side into the first argument of the right-hand side function call.  This
+allows use of functions not designed for pipelining in pipelines.
+For example, copied from the examples in `help("|>")`
+```{r gazorninplat}
+mtcars |> subset(cyl == 4) |> lm(mpg ~ disp, data = _)
+```
+The underscore is the placeholder, the left-hand side is piped into there.
+
+Of course, this example is silly because it is more easily and more clearly
+done without pipelines.
+```{r gazorninsplat}
+lm(mpg ~ disp, data = mtcars, subset = cyl == 4)
+```
+But there are real applications where we have done something complicated
+to data in a pipeline and then we want to pipe it into a function but not
+into the first argument of a function.  That's what the placeholder is for.
+
+### Looking at the SQL
+
+Let's redo this and look at the SQL (even though you are not supposed
+to understand this)
+```{r show.sql}
+union(depends, imports) |> union(suggest) |> union_all(linking) |>
+    count(packto, sort = TRUE) |>
+    show_query()
+```
+
+If we knew enough SQL to write all of that, we wouldn't need `dplyr` to work
+with the database.  But we usually don't work with databases.  If the data
+fits in the computer we are using, we just use R.  R package `dplyr` makes
+it easy to use the same code for both cases, so long as we use all `dplyr`
+(not other function from other packages, not even functions from core R)
+in our pipelines.
+
+### Moving from the Database to R
+
+Now we can get a reasonable amount of data.  Let's get the packages
+that have 100 or more other packages depending on them.
+```{r select}
+filter(foo, n >= 100)
+```
+
+Humpf!  We already had it in order, but let's try what it suggests:
+move the sort from earlier in the pipeline (in the `count`) to latter
+(in an `arrange`)
+```{r select.too}
+bar <- union(depends, imports) |>
+    union(suggest) |>
+    union_all(linking) |>
+    count(packto) |>
+    filter(n >= 100) |>
+    arrange(desc(n))
+bar
+```
+
+Now no warning.
+But everything is still in the database.  We cannot do anything with it in
+R (except via R packages `DBI` and `dplyr`).  At some point we want to
+move it to R (when our results are small enough).
+```{r select.too.too}
+qux <- collect(bar)
+qux
+```
+Now R object `qux` is a tibble, which is a tidyverse modification of base
+R data frames.  One difference we notice is that it prints differently.
+It doesn't show all the rows by default (R function `print.data.frame` does
+show all of the rows; we would have to combine it with R function `head`
+to behave like R function `print.tibble`).
+
+But tibble or whatever, `qux` is a regular old R object (not something in
+the database) so we can use any R functions to operate on it.
+
+Of course, we did not have to do the `collect` in a separate statement.
+We could have put it in the pipeline too.
+```{r collect.too}
+qux <- union(depends, imports) |>
+    union(suggest) |>
+    union_all(linking) |>
+    count(packto) |>
+    filter(n >= 100) |>
+    arrange(desc(n)) |>
+    collect()
+```
+
+### Disconnecting from the Database
+
+It may not matter with SQLite, but if one were working with a database
+on another computer, like Oracle or MySQL or PostgreSQL, one would need
+to disconnect (in order not to use up the connections allowed).
+```{r discon}
+DBI::dbDisconnect(mydb)
+```
+
+Now that we have disconnected, nothing in the database is any longer
+available.  But R object `qux` still works, since that was taken out
+of the database.
+```{r show-whats-left, error=TRUE}
+bar
+qux
+```
+

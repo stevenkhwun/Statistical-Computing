@@ -1,0 +1,825 @@
+---
+title: "Stat 3701 Lecture Notes: Statistical Models"
+author: "Charles J. Geyer"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    number_sections: true
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+  pdf_document:
+    number_sections: true
+---
+
+# License
+
+This work is licensed under a Creative Commons
+Attribution-ShareAlike 4.0 International License
+(http://creativecommons.org/licenses/by-sa/4.0/).
+
+# R
+
+ * The version of R used to make this document is `r getRversion()`.
+
+ * The version of the `rmarkdown` package used to make this document is
+   `r packageVersion("rmarkdown")`.
+
+ * The version of the `pkgsearch` package used to make this document is
+   `r packageVersion("pkgsearch")`.
+
+ * The version of the `MASS` package used to make this document is
+   `r packageVersion("MASS")`.
+
+ * The version of the `mgcv` package used to make this document is
+   `r packageVersion("mgcv")`.
+
+```{r libraries}
+library("pkgsearch")
+library("MASS")
+library("mgcv")
+```
+
+# Statistical Models of the R Kind
+
+Statistical models come in two kinds, those that R calls models and those
+it doesn't.  (Have you heard the joke: there are two kinds of people in
+this world, those who divide everything into two kinds, and those who don't?
+Or its geek version: there are 10 kinds of people in this world, those
+who know binary and those who don't?)
+
+What R calls statistical models are fit by functions that work like the
+R function `lm` in many ways, make assumptions that are like those for
+linear models in many ways, and use many of the same generic functions
+to process their output, including `summary`, `predict`, and `anova`.
+
+Of course these models are not *exactly* like linear models.  They have
+to be different in *some* ways.  But they are similar enough for some
+of the intuitions to carry over and some of the ways of working with models
+to carry over.
+
+## Regression Models
+
+Linear models are a special case of "regression" models.  They make the
+following assumptions.
+
+ * The data can be put in a data frame.
+
+ * The rows are *cases*, also called *individuals*.
+   The columns are *variables*.
+
+ * One variable is special: the *response*.
+   All other variables are called *predictors*.
+
+ * The job of *regression* is to estimate the conditional
+   distribution of the response given the predictors for each case.
+   If $y_i$ is the response for case $i$, and $x_i$ and $z_i$ are
+   the predictors for case $i$, then the job is to estimate
+   the conditional distribution of $y_i$ given $x_i$ and $z_i$.
+
+For those who have not had a theory course and don't know what a conditional
+distribution is, it is just a probability distribution like any other
+probability distribution — given by
+a probability mass function (PMF) if the response is a discrete random
+variable or by a probability density function (PDF) if the response is
+a continuous random variable — except that the parameters of the
+distribution are allowed to depend on the conditioning variables.
+The conditional distribution of the response given the predictors depends
+on what the values of the predictors are.
+
+If you imagine new data (not part of the data used to fit the model),
+in which you do not get to see the response $y_i$ for this new case
+but do get to see the predictors (say $x_i$ and $z_i$), then the estimated
+conditional distribution allows *predictions* about $y_i$ given the values
+of $x_i$ and $z_i$.
+
+There can be as many predictor variables as you like.  There is only one
+response variable.  (Exception: the R function `mlm` does linear models with
+*vector* response, but we won't talk about that.)
+
+You can even make up new predictor variables from old ones.
+
+ * In polynomial regression, starting with predictors $x_i$ and $z_i$,
+   one can make up
+
+     + quadratic predictors $x_i^2$ and $x_i z_i$ and $z_i^2$
+
+     + cubic predictors $x_i^3$ and $x_i^2 z_i$ and $x_i z_i^2$ and $z_i^3$
+
+     + and so forth for higher order polynomials.
+
+ * In regression with a categorical predictor vector $x$
+   (what R calls a `factor`) one must make up *dummy variables*.
+
+     + If $x$ has $k$ categories, then there are dummy variables
+       $d_1$, $d_2$, $\ldots,$ $d_k$.
+
+     +  A dummy variable is zero-or-one valued (an *indicator* variable).
+
+     + The component of $d_j$ for case $i$ is equal to one if the value
+       of $x_i$ is the $j$-th category (in R `levels(x)[j]`).
+
+     + If there is an *intercept* in the regression, then one of the
+       dummy variables is "dropped" (left out of the model).  Otherwise,
+       there would be *collinearity* (and not all *coefficients* could
+       be estimated).
+
+     + Most R functions that fit models treat R variables of type `"character"`
+       as if they were factors.  They are automatically converted to factors
+       in the process of model fitting.
+
+ * The *intercept* variable (if present) is itself a "made up" predictor.
+   It is the vector all of whose components are equal to one.
+
+ * In general one can make up arbitrary predictors.  Starting with a
+   variable $x$ one can make up $g_1(x)$, $g_2(x)$, $g_3(x)$ and so forth,
+   where $g_1$ and $g_2$ and $g_3$ are *arbitrary* functions that act
+   vectorwise.
+
+The regression equation is
+$$
+   \theta_i = m_{i 1} \beta_1 + m_{i 2} \beta_2 + \cdots + m_{i p} \beta_p
+$$
+where $\theta_i$ is some parameter (more on this later), the betas are
+unknown parameters to estimate (called the *coefficients* of the model).
+And each $m_{i j}$ is the value of some predictor variable (either originally
+given or made-up) for case $i$.
+
+If we are sophisticated we think of $m_{i j}$ as as the components of a matrix
+$M$.
+Then the regression equation above can be rewritten as a matrix-vector equation
+$$
+   \theta = M \beta
+$$
+If there are $n$ cases and $p$ coefficients, then
+
+ * the dimension of $\theta$ is $n$,
+
+ * the dimension of $\beta$ is $p$,
+
+ * the dimension of $M$ is $n$ by $p$ ($n$ rows and $p$ columns)
+
+The matrix $M$ is called the *model matrix* by some and the *design matrix*
+by others.  But the name *design matrix* does not make much sense when the
+data do not come from a designed experiment, although this does not stop
+the people who like the term from using it for observational studies.
+Also R uses only the term *model matrix* in its documentation and in the
+name of the function `model.matrix` that turns R formulas into model matrices.
+So we will always say *model matrix*.
+
+Weisberg makes a useful distinction.  He calls the originally given
+predictor variables *predictors*, just like I have.
+He calls the columns of the model matrix *regressors*.
+This is shorter than and sounds more scientific than "either originally
+given or made-up predictors".
+
+You know all of this from STAT 3032.  This is just a reminder.
+
+## Linear Models (LM)
+
+In order to know what stays the same and what changes, we briefly review
+linear models (those fit by the R function `lm`).  Their assumptions are
+as follows.
+
+ * The parameter in the regression equation is the mean so we rewrite it
+$$
+   \mu = M \beta
+$$
+
+ * The components of the response vector are conditionally independent
+   given the predictors.
+
+ * The conditional distributions of the components of the response vector
+   given the predictors are *normal* and the variance does not depend on
+   the predictors.  If the response vector is $y$, then the conditional
+   distribution of $y_i$ given the predictors
+   is
+$$
+   \text{Normal}(\mu_i, \sigma^2)
+$$
+
+ * the unknown parameters to be estimated are the regression coefficients
+   (betas) and $\sigma^2$.
+
+You may be in the habit of thinking of the regression equation as
+$$
+   y = M \beta + e
+$$
+or written out in long form
+$$
+   y_i = m_{i 1} \beta_1 + m_{i 2} \beta_2 + \cdots + m_{i p} \beta_p + e_i
+$$
+where $e$ is "error".  If so, forget that.  That formulation does not
+generalize to so-called "generalized linear models".  The description above
+does generalize.
+
+Let's do a toy example, just to make the abstractions above concrete.
+```{r}
+foo <- read.table("http://www.stat.umn.edu/geyer/5102/data/ex5-4.txt",
+    header = TRUE)
+names(foo)
+sapply(foo, class)
+```
+Suppose we want to fit parallel regression lines, regressing `y` on `x`
+for each color.
+```{r}
+lout <- lm(y ~ x + color, data = foo)
+summary(lout)
+```
+It will be easier to work with if we do not have an intercept, in which
+case R will not drop one dummy variable for `color` and the fitted model
+will be the same in the sense that it makes the same predictions about
+the conditional distribution of the response given the predictors,
+although the coefficients will change.
+```{r}
+lout <- lm(y ~ 0 + x + color, data = foo)
+summary(lout)
+```
+Then we plot the results
+```{r fig.align='center'}
+coef <- coefficients(lout)
+attach(foo)
+plot(x, y, col = as.character(color))
+for (col in unique(color)) {
+    predname <- paste("color", col, sep="")
+    abline(coef[predname], coef["x"], col = col)
+}
+detach(foo)
+```
+
+But that wasn't what we really wanted to illustrate.
+Where is the model matrix and the response vector?
+We don't see them.  But we can!
+```{r}
+lout <- lm(y ~ 0 + x + color, data = foo, x = TRUE, y = TRUE)
+# model matrix
+lout$x
+# response vector
+lout$y
+```
+
+If we ever had a model in which the R formula mini-language —
+the mini-language whose interpreter is the R function `model.matrix`
+and whose documentation is `?formula` — is inadequate to describe
+the model matrix, then we can always just construct the response vector
+and model matrix without using a formula and tell `lm` to use them.
+```{r}
+m <- as.matrix(lout$x) ### strip attributes
+y <- as.vector(lout$y) ### strip names
+lout.too <- lm(y ~ 0 + m)
+summary(lout.too)
+```
+
+We need the `0 +` because the "intercept" regressor is already in `m`.
+
+Except for changing the names of the coefficients by pasting `"m"` on the
+front, everything is the same.
+```{r}
+identical(as.vector(coefficients(lout)), as.vector(coefficients(lout.too)))
+```
+
+## Generalized Linear Models (GLM)
+
+### Introduction
+
+In generalized linear models we drop the normal distribution of the response
+given the predictors.   We even drop the assumption that this distribution
+is continuous.  It works for discrete response.
+
+  * In LM the response must be continuous, but the predictors can be anything
+    (categorical predictors get turned into dummy variables).
+
+  * In GLM the response can be discrete or continuous.
+
+  * The R function `glm` fits GLM.
+
+  * The families that are allowed for the conditional distribution of response
+    given predictor are documented on `?family`.  The two most important are
+    `binomial` and `poisson`.
+
+  * The regression equation has the general form
+$$
+   \theta = M \beta
+$$
+     where $\theta_i$ is some parameter (usually not the mean) that
+     specifies the conditional distribution of $y_i$ given the predictors
+     for case $i$ within a specified family.  The vector $\theta$ is
+     called the *linear predictor* in GLM parlance.
+
+  * The relationship between mean values and linear predictor values is
+    given by
+    the *link function*.  If $g$ is the link function, then $\theta = g(\mu)$,
+    where the link function $g$ operates vectorwise.
+
+      + For the binomial family, the default link function is the logit
+        function (pronounced low-jit)
+
+      + For the poisson family, the default link function is `log`
+
+ * The components of the response vector are conditionally independent
+   given the predictors.  (This assumption is the same for LM and GLM.)
+
+R does not have the logit function but we can easily define it.  We also
+define its inverse function.
+```{r}
+logit <- function(p) log(p) - log1p(- p)
+invlogit <- function(theta) 1 / (1 + exp(- theta))
+```
+
+### Model Fitting
+
+So let's try out GLM with Bernoulli response (a random variable is
+\emph{Bernoulli} if it is zero-or-one-valued, in other words if it
+is binomial with sample size one).
+```{r}
+foo <- read.table("http://www.stat.umn.edu/geyer/5102/data/ex6-1.txt",
+    header = TRUE)
+names(foo)
+sapply(foo, class)
+gout <- glm(y ~ x, data = foo, family = binomial)
+summary(gout)
+```
+
+A plot shows what we have done
+```{r fig.align='center'}
+with(foo, plot(x, y))
+curve(predict(gout, newdata = data.frame(x = x), type = "response"),
+    add = TRUE)
+```
+
+From the plot we see the reason for link function.  The curve is the
+mean of the conditional Bernoulli distribution of $y$ given $x$.  It
+does not look like this relation should be linear.  The curve given
+by the GLM looks reasonable.  So whether or not the logit link is
+exactly the right thing, it is *a lot* more reasonable than the
+identity link (which would assume means are linear).
+
+The R function `glm` does not even allow trying to use identity link here.
+
+### Hypothesis Tests
+
+Suppose we try out some polynomial regressions (polynomial on the linear
+predictor scale).
+```{r fig.align='center'}
+gout2 <- glm(y ~ x + I(x^2), data = foo, family = binomial)
+summary(gout2)
+gout3 <- glm(y ~ x + I(x^2) + I(x^3), data = foo, family = binomial)
+summary(gout3)
+plot(foo)
+curve(predict(gout, newdata = data.frame(x = x), type = "response"),
+    add = TRUE)
+curve(predict(gout2, newdata = data.frame(x = x), type = "response"),
+    add = TRUE, col = "red")
+curve(predict(gout3, newdata = data.frame(x = x), type = "response"),
+    add = TRUE, col = "blue")
+legend(1, 1, legend = c("linear", "quadratic", "cubic"),
+    col = c("black", "red", "blue"), lty = 1)
+```
+
+Another example of TIMTOWTDI.  Different ways to make the same plot.
+```{r eval=FALSE}
+plot(foo$x, foo$y, xlab = "x", ylab = "y")
+attach(foo); plot(x, y); detach(foo)
+with(foo, plot(x, y))
+plot(foo)
+```
+(The last only works because the names are `x` and `y`.)
+
+As we know from our experience with `lm`, which produces objects of class
+`"lm"`, and all of the generic functions that have methods for such objects,
+there are two ways to do hypothesis tests involving such fits.
+
+  * If the test involves whether one coefficient should be in or out of the
+    model, we just look at the $P$-values printed by the R function `summary`.
+    If we want to know whether the coefficient for `"I(x^3)"` is statistically
+    significantly different from zero in the fit `gout3`, the $P$-value
+    `r formatC(summary(gout3)$coefficients["I(x^3)", "Pr(>|z|)"],
+    digits=3, format="f")` says it is not.
+
+    Then, having decided that the quadratic model is to be preferred on
+    grounds of parsimony to the cubic model, we look in the fit of that
+    model to see whether the coefficient for `"I(x^2)"` is statistically
+    significantly different from zero, and the $P$-value
+    `r formatC(summary(gout2)$coefficients["I(x^2)", "Pr(>|z|)"],
+    digits=3, format="f")` says it is not.
+
+  * If the test involves more than one parameter then we use the R function
+    `anova` to do the comparison.  And it can do several different, but
+    asymptotically equivalent (meaning they give nearly the same result
+    when the sample size is large).  Let's try them.
+
+```{r}
+anova(gout, gout3, test = "Chisq")
+anova(gout, gout3, test = "LRT")
+anova(gout, gout3, test = "Rao")
+```
+Somewhat bizarrely, `"Chisq"` and `"LRT"` name the same test: the likelihood
+ratio test (LRT) whose asymptotic distribution under the null hypothesis
+is chi-square with degrees of freedom that is the difference in the
+number of parameters of the model being tested.
+The option `"Rao"` names a different test: the Rao test, also called the
+"score" test, also called the "Lagrange multiplier" test.  Its asymptotic
+distribution under the null hypothesis is the same as the LRT.
+
+  * These $P$-values `r formatC(anova(gout, gout3, test="LRT")[2, "Pr(>Chi)"],
+    digits=4, format="f")` and
+    `r formatC(anova(gout, gout3, test="Rao")[2, "Pr(>Chi)"],
+    digits=4, format="f")` would be nearly the same if we were in
+    asymptopia (large sample size territory).  They are not because the
+    sample size is not large.
+
+  * Either of them, though, says that the larger model (the cubic one)
+    fits these data no better than the smaller model (the linear one),
+    hence the latter is preferred on grounds of parsimony.
+
+In short
+
+  * to compare models that differ in one parameter, use the $P$-values
+    given by the R function `summary` or perhaps by the R functions
+    `drop1` and `add1` (which we do not illustrate), and
+
+  * to compare models that differ in more than one parameter,
+    use the $P$-values given by the R function `anova`.
+    Of course, `anova` compares any two models, even those that
+    differ in one parameter.
+
+  * Hence one can always use `anova`, but only sometimes use `summary`
+    or `add1` or `drop1`.
+
+**Warning:** R function `anova` is actually a footgun.  One condition
+is required for the test to be valid (other than large sample size),
+and that is that the models be *nested*, which means that the little
+model (null hypothesis) is a special case of the big model (alternative
+hypothesis).  R function `anova` does not check this condition, so you
+have to know what you are doing to use it.  Usually it is obvious when
+the models are nested (every term in the formula for the little model is
+also a term in the formula for the big model).  But not always obvious.
+The real condition is that every *probability distribution* in the little
+model is also in the big model.
+
+
+### Confidence Intervals
+
+Statistical inference for a GLM is slightly different from that for LM in
+that the sampling distributions of estimators and test statistics are
+approximate, "large $n$" distributions, where LM has exact $t$ and $F$
+distributions, GLM have approximate normal and chi-square distributions.
+But that is the only difference.  Everything else works the same.
+
+For an example, here is a confidence interval for the mean for predictor
+value $x = 25$.
+```{r}
+conf.level <- 0.95
+xnew <- 25
+
+crit <- qnorm((1 + conf.level) / 2)
+pout <- predict(gout, newdata = data.frame(x = xnew),
+    se.fit = TRUE, type = "response")
+pout$fit + c(-1,1) * crit * pout$se.fit
+```
+This confidence interval does not work very well.  Notice that its upper
+end point is well above the range of possible values of the parameter
+(the response vector is zero-or-one-valued so the means range between
+zero and one).  There is nothing wrong with this.  The confidence interval
+is based on "large sample approximation" and our data are not numerous.
+
+Still, we can do somewhat better.  The "large sample approximation" assumes,
+among other things, that the inverse link function is approximately linear
+in the region of the confidence interval, and we can just see from the
+picture that that's not correct.  So if we make a confidence interval
+for the linear predictor and then map that to the mean value parameter scale,
+that should be better.  At least our new confidence interval will have to
+be in the range of possible parameter values (because the inverse link
+function maps in there).
+```{r}
+tout <- predict(gout, newdata = data.frame(x = xnew), se.fit = TRUE)
+invlogit(tout$fit + c(-1,1) * crit * tout$se.fit)
+```
+
+The fact that these two confidence intervals are so different, when
+"large sample theory" says they are "asymptotically equivalent" (should
+be very close for large sample sizes) says that "large sample approximation"
+is not working very well for these data.
+
+## Nonparametric Regression
+
+*Nonparametric* refers to statistical models that cannot be described
+using a finite set of parameters.  They are models that are too big
+to be parametric.
+
+There does not seem to be any useful way to be totally nonparametric about
+regression: to say that there is some relationship between response and
+predictors and we want to proceed making no assumptions whatsoever.
+There is just not enough structure to get going.  Or at least no one has
+ever had any idea about how to proceed in this manner AFAIK.
+
+So nonparametric regression divides in two:
+
+ * being parametric about the regression equation but nonparametric about
+   the error distribution and
+
+ * being nonparametric about the regression equation but being parametric
+   about the error distribution, usually making the same error distribution
+   assumptions as LM or GLM.
+
+### Being Nonparametric About the Error Distribution
+
+There isn't a way to be nonparametric about zero-or-one-valued response.
+A zero-or-one-valued random variable is automatically Bernoulli.
+So this is about continuous response.  In this section we are looking
+at competitors that make all the same assumptions as LM except they
+
+ * drop the assumption that the error distribution is homoscedastic (same
+   variance) normal and
+
+ * instead assume the error distribution is symmetric about zero and the
+   same for all components of the response vector.
+
+The normal distribution is symmetric.  Hence we have changed normal
+distribution symmetric about zero into any distribution symmetric about
+zero.  That's nonparametric because "any distribution" is too large a
+family to be described by a finite set of parameters.
+
+Already in the notes about correcting errors in data we tried out two
+R functions that approach this problem using two different methodologies.
+Recall that these were the R functions `lqs` and `rlm` both of which are
+in the R package `MASS`, which is a "recommended" package that comes
+with every installation of R.
+
+Let us make up some data that is a challenge for LM but these functions
+handle well.  First, being a bit bored with "simple" linear regression,
+let's try means are a cubic function of the predictor.
+```{r fig.align='center'}
+x <- 0:200
+mu.true <- x * (x - 100) * (x - 200) * 1e-5
+plot(x, mu.true, type = "l", xlab = "x", ylab = expression(mu))
+```
+
+So now we want to add "errors" having a horrible distribution.  The
+worst distribution we know for errors (at least worst for LM) is the
+Cauchy distribution, which is very heavy tailed.  If you have Cauchy errors,
+and are expecting normal errors, then it looks like there are lots of
+"outliers".  But they aren't mistakes.  The errors just have a different
+distribution.
+```{r fig.align='center'}
+set.seed(42)
+y <- mu.true + rcauchy(length(x))
+plot(x, y)
+lines(x, mu.true)
+```
+
+So now we have some data to try out methods on.  But we have a problem.
+
+> It's hard to know what lessons you are supposed to draw from a toy problem.
+>
+> — Me
+
+We now have to imagine that we don't know how the data were created and
+just want to do regression.
+
+Let's try LM first (even though the data are wildly inappropriate for it,
+which we aren't supposed to know).
+```{r}
+lout <- lm(y ~ poly(x, degree = 3))
+summary(lout)
+```
+
+Comparing with the "simulation truth", which of course we are pretending
+we don't know, this doesn't look good.  The true regression function
+is cubic with coefficients
+
+  * coefficient of constant term (intercept): 0
+
+  * coefficient of first degree term:
+    $(0 \cdot (-100) + 0 \cdot (-200) + (-100) (-200)) \times 10^{-5}
+    = `r 100 * 200 * 1e-5`$
+
+  * coefficient of second degree term:
+    $(0 + (-100) + (-200)) \times 10^{-5}
+    = `r ((-100) + (-200)) * 1e-5`$
+
+  * coefficient of third degree term: $10^{-5}$.
+
+So now let's try the others.
+```{r}
+qout <- lqs(y ~ poly(x, degree = 3))
+summary(qout)
+```
+How annoying!  There is no summary method for class `"lqs"`
+```{r}
+qout$coefficients
+```
+This doesn't seem to have done any better than `lm` in coming close to
+the simulation truth.  (There are a lot of options to play with, but
+we won't bother.)
+
+On to `rlm`.
+```{r}
+rout <- rlm(y ~ poly(x, degree = 3))
+summary(rout)
+```
+I have no idea why none of these "work".  Let's look at what they did.
+```{r fig.align='center'}
+plot(x, y)
+lines(x, mu.true)
+curve(predict(lout, newdata = data.frame(x = x)), col = "red", add = TRUE)
+curve(predict(qout, newdata = data.frame(x = x)), col = "blue", add = TRUE)
+curve(predict(rout, newdata = data.frame(x = x)), col = "green", add = TRUE)
+```
+
+Oh.  There isn't that much difference.  We can't really see very well
+what is going on with the compressed range of variation of the regression
+curve.  Let's zoom in.
+```{r fig.align='center'}
+plot(x, y, ylim = c(-5, 5))
+lines(x, mu.true)
+curve(predict(lout, newdata = data.frame(x = x)), col = "red", add = TRUE)
+curve(predict(qout, newdata = data.frame(x = x)), col = "blue", add = TRUE)
+curve(predict(rout, newdata = data.frame(x = x)), col = "green", add = TRUE)
+legend(160, 5, legend = c("truth", "lm", "lts", "rlm"),
+    col = c("black", "red", "blue", "green"), lty = 1)
+```
+
+I guess we have to say that `rlm` is the winner on this one toy problem,
+because it is closest to the simulation truth at both ends, whereas `lm`
+is quite a bit off near $x = 50$ and `lts` (`lqs` using the default method
+`lts`) is quite a bit off near $x = 150$.  But, as said above, it is hard
+to know what lessons to draw from a toy problem.
+
+Let's look at some confidence intervals.
+```{r}
+xxx <- seq(0, 200, 50)
+# simulation truth
+mu.true[x %in% xxx]
+predict(lout, newdata = data.frame(x = xxx), interval = "confidence")
+```
+Three out of five 95% confidence intervals miss the simulation truth.
+No surprise because the assumptions for LM are badly violated.  The
+only surprise is that LM doesn't do even worse.
+
+The R function `predict.lqs` does not do confidence intervals.
+We would have to bootstrap or something of the sort to do any inference
+after using `lqs`.  More on the bootstrap later.
+
+```{r}
+predict(rout, newdata = data.frame(x = xxx), interval = "confidence")
+```
+
+The R function `predict.rlm` apparently does confidence intervals,
+but I say "apparently" because this function is undocumented.
+When you do `?predict.rlm` you are taken to the help page for the `rlm`
+function, but nothing is said about the `rlm` method of the generic
+function `predict`.  We managed to use it above by assuming it works
+just like `predict.lm` when it is just doing predictions (no confidence
+intervals).
+
+If we look at the definition of this function
+```{r}
+getS3method("predict", "rlm")
+```
+We see something very mysterious.  What does `NextMethod` do?
+It calls the next method for the next class, but what is that?
+```{r}
+class(rout)
+```
+Oh.  The next class is `"lm"`, so it actually calls the function `predict.lm`
+but with whatever it uses from the object of class `"lm"` is different
+when the object is made by `rlm`.
+
+This is not how to document code IMHO.  If you have to
+[Use the source, Luke!](http://www.catb.org/jargon/html/U/UTSL.html),
+that's not documentation.
+
+### Being Nonparametric About the Regression Equation
+
+#### A Plethora of Packages
+
+Now we are back to assuming normal errors, but we want to be nonparametric
+about the regression function.
+Suppose in our toy problem we don't know the regression
+equation is cubic?  Since we need normal errors, let's go back and put normal
+errors on the same simulation truth regression function.
+```{r}
+y <- mu.true + rnorm(length(x))
+```
+
+There are several nonparametric regression functions in the "core" and
+"recommended" packages that come with every R installation
+
+ * `smooth.spline` in the `stats` package (core)
+
+ * `ksmooth` in the `stats` package (core)
+
+ * `locpoly` in the `KernSmooth` package (recommended)
+
+ * `gam` in the `mgcv` package (recommended)
+
+ * `smooth.spline` in the `stats` package (core)
+
+ * `loess` in the `stats` package (core)
+
+ * `supsmu` in the `stats` package (core)
+
+And there's lots more on CRAN
+```{r cache=TRUE}
+foo <- advanced_search("smooth|kernel|spline", size = 1000)
+dim(foo)
+names(foo)
+foo$package[1:50]
+```
+I have no idea how many of these are true positives (really do
+nonparametric regression).
+
+#### R function `smooth.spline`
+
+Rather than tackle what is obviously a huge subject.  Let's just illustrate
+one.
+```{r fig.align='center'}
+plot(x, y)
+lines(x, mu.true)
+sout <- smooth.spline(x, y, all.knots = TRUE)
+lines(sout, col = "green")
+```
+Good job!  Note that we did not tell `smooth.spline` that the regression
+function was cubic.  We didn't tell it anything about the regression function.
+Nevertheless, it comes pretty close.
+
+Statistical inference after "smoothing", which is what this is often
+called rather than "nonparametric regression" is also problematic.
+We would have to bootstrap to get confidence intervals.
+Some smoothing methods do come with confidence intervals, but those intervals
+assume the degree of smoothness of the regression function is known rather
+than estimated from the data.  So they are bogus when, as here, we don't
+specify a degree of smoothness (by using the optional argument `df`).
+
+#### R function `gam` in package `mgcv`
+
+Let's try one more.  The R package `mgcv`, which is a "recommended" package
+that comes with every R installation, fits much more general models than
+`smooth.spline`.  It fits, so-called additive models, where the mean vector
+has the form
+$$
+   \mu = g_1(x_1) + g_2(x_2) + \cdots + g_k(x_k)
+$$
+where $x_1$, $x_2$, and $x_k$ are different predictors
+and $g_1$, $g_2$, and $g_k$ are different smooth functions that
+are to be figured out by the computer.  So it does nonparametric
+regression with multiple predictors.
+
+But we are just going to illustrate one predictor using the same
+data as in the preceding section.
+```{r fig.align='center'}
+plot(x, y)
+lines(x, mu.true)
+aout <- gam(y ~ s(x, bs="cr"))
+summary(aout)
+curve(predict(aout, newdata = data.frame(x = x), type = "response"),
+    add = TRUE, col = "darkseagreen")
+```
+
+Unlike, some other functions we have looked at, the R function produces
+objects of class
+```{r}
+class(aout)
+```
+so there is a rich class of methods for generic functions.  We can make
+confidence intervals.
+```{r fig.align='center'}
+conf.level <- 0.95
+
+plot(x, y)
+lines(x, mu.true)
+fred <- function(x) {
+    foo <- predict(aout, newdata = data.frame(x = x),
+        type = "response", se.fit = TRUE)
+    crit <- qnorm((1 + conf.level) / 2)
+    foo$fit + crit * foo$se.fit
+}
+curve(fred, lty = "dashed", add = TRUE)
+fred <- function(x) {
+    foo <- predict(aout, newdata = data.frame(x = x),
+        type = "response", se.fit = TRUE)
+    crit <- qnorm((1 + conf.level) / 2)
+    foo$fit - crit * foo$se.fit
+}
+curve(fred, lty = "dashed", add = TRUE)
+```
+This seems pretty good.  Even though `gam` and `predict.gam` know nothing
+about the true unknown regression function, and even though these confidence
+intervals
+
+  * assume that the degree of smoothness is known rather than estimated, and
+
+  * are not corrected for simultaneous coverage,
+
+they mostly (nearly everywhere) cover the simulation truth.
+
+# Statistical Models of Other Kinds
+
+Not all statistical models are regression like, with a response
+and a predictor.  You know from intro stats that the simplest
+models just have one variable.  But there is still statistical inference.
+
+There can also be very complicated models with many parameters to estimate
+(but no single variable picked out as being a "response" to "predict").
+
+More on these later.  First we get some other subjects out of the way.
+

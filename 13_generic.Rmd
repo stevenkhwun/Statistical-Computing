@@ -1,0 +1,396 @@
+---
+title: "Stat 3701 Lecture Notes: R Generic Functions"
+author: "Charles J. Geyer"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    number_sections: true
+    mathjax: "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+  pdf_document:
+    number_sections: true
+---
+
+# License
+
+This work is licensed under a Creative Commons
+Attribution-ShareAlike 4.0 International License
+(http://creativecommons.org/licenses/by-sa/4.0/).
+
+# R
+
+ * The version of R used to make this document is `r getRversion()`.
+
+ * The version of the `rmarkdown` package used to make this document is
+   `r packageVersion("rmarkdown")`.
+ 
+ * The version of the `MASS` package used to make this document is
+   `r packageVersion("MASS")`.
+ 
+ * The version of the `mgcv` package used to make this document is
+   `r packageVersion("mgcv")`.
+ 
+ * The version of the `aster` package used to make this document is
+   `r packageVersion("aster")`.
+ 
+ * The version of the `gmp` package used to make this document is
+   `r packageVersion("gmp")`.
+ 
+# OOP
+
+We learned in [Sections 3.6, 3.7, 3.8 of course notes about R
+basics](http://www.stat.umn.edu/geyer/3701/notes/basic.pdf#page=9)
+that R is not an object-oriented programming (OOP) language in the sense
+that C++ or Java is, although it is more object-oriented in some other
+senses (in R *everything* is an object).  But R objects are not like
+C++ or Java objects.
+
+ * Most are not *instances* of *classes*, that is R is not a *classical*
+   OOP language (but R S4 object system is classical (has classes)).
+
+ * Most are not created by the `new` operator (but R S4 objects are).
+
+ * Most do not have both fields and methods (data and functions).
+   Even most R S4 classes do not have methods.  Methods are not the R way.
+   Instead R has generic functions.
+
+So R has some but not all of what you would think OOP is from exposure
+to C++.  Actually C++ is not a pure OOP language in the sense that Java
+is.  By its need to be backward compatible with C, which is definitely
+not an OOP language, C++ is only as OOPy as you want it to be.
+
+As [Bjarne Stroustrup](http://www.stroustrup.com/) the inventor of C++ says,
+[C++ is not "just" an OOP language](http://www.stroustrup.com/oopsla.pdf),
+rather it is a multiparadigm language, and generic programming (like R
+favors) is one of its paradigms.
+
+# S3 generics
+
+## Introduction
+
+R has *a lot* of S3 generic functions.  You do not really understand R
+until you know at least a little bit about them.  The reason they are
+called "S3" is because they were introduced in S version 3 (recall that
+S was the proprietary language of which R is a free implementation).
+The reason why one has to keep mentioning "S3" is to distinguishing them
+from the S4 system, which was introduced in S version 4.  (S versions
+have nothing to do with R versions.  R is not up to version 4 yet.
+S got to version 4 long ago.)
+
+You can tell an S3 generic just by looking at it.
+```{r}
+plot
+summary
+```
+The entire body of the function is a call to the R function `UseMethod`.
+Also the documentation
+```
+?plot
+?summary
+```
+says the function is generic right at the beginning.
+
+So called group generics are different;
+[they will be discussed below](#group-generics).
+
+## S3 Classes
+
+### Introduction {#classes-intro}
+
+To understand S3 generics, we first have to understand classes.  S3
+classes are *very* different from C++ classes.  Basically, they mean
+nothing.  To make `foo` an object of class `bar` you just say so.
+```{r}
+foo <- 1:10
+class(foo)
+class(foo) <- "bar"
+class(foo)
+attributes(foo)
+```
+So `foo` having class `bar` doesn't mean anything other than that someone
+set the `"class"` attribute of `foo` to be the character string `"bar"`.
+
+Usually, one uses the R function `class` to do that, but one doesn't have to.
+```{r}
+foo <- 1:10
+attr(foo, "class") <- "bar"
+class(foo)
+```
+
+So an S3 class is just a character string attribute.  It says nothing
+whatsoever about any other properties of the object.
+
+### Subclasses
+
+The class attribute can be a character vector.
+```{r}
+foo <- 1:10
+class(foo) <- c("bar", "baz", "qux", "woof")
+```
+
+We can think of object `foo` having class `"woof"`, subclass `"qux"`,
+subsubclass `"baz"`, subsubsubclass `"bar"`.
+
+Again this has nothing whatsoever to do with the properties of the object.
+The `"class"` attribute is whatever somebody set it to.
+
+### Basic R Objects
+
+R objects have a class — the class of `foo` is given by `class(foo)`
+even if `foo` does not have a class attribute — the way this works
+is that the R function `class` makes up a class for those objects.
+
+For some the class is the same as the mode.
+```{r}
+class(1)
+mode(1)
+```
+For matrices and arrays the class is determined by whether the object
+has an attribute `"dim"` and what its length is (recall that *really*
+[a matrix is just a numeric vector with an attribute `"dim"` giving
+the dimensions](http://www.stat.umn.edu/geyer/3701/notes/array.html#what-is-a-matrix-really) and similarly for arrays).
+
+### Summary
+
+ * Everything in R is an object
+
+ * Every object has a class, whether or not it has been assigned one,
+   and the R function `class` reports the class or vector of classes.
+
+## How Generics Work
+
+S3 generics "dispatch" on the class of the first argument.
+
+ * They look at the class of the first argument.
+
+ * They paste the class onto the function separated by a dot.
+
+ * If a function of that name exists, they redo the function call
+   with the same arguments but the new function name.
+
+ * If the R function `class` returns a vector when applied to the
+   first argument, they try each component in turn until they find a match.
+
+ * If no matching function is found, the paste "default" onto the name
+   of the generic function, and redo the function call with that function,
+   if it exists.
+
+ * If no match is found, this is an error.
+
+```{r error=TRUE}
+fred <- function(x) UseMethod("fred")
+fred(1:4)
+fred.default <- function(x) {
+    cat("in fred.default\n")
+    invisible(NULL)
+}
+fred(1:4)
+fred.foo <- function(x) {
+    cat("in fred.foo\n")
+    invisible(NULL)
+}
+o <- 1:4
+class(o) <- "foo"
+fred(o)
+fred.bar <- function(x) {
+    cat("in fred.bar\n")
+    invisible(NULL)
+}
+class(o) <- c("foo", "bar")
+fred(o)
+```
+
+The R function `structure` is designed to make and object and assign
+attributes to it in one go.  So we can also do
+```{r}
+fred(structure(1:4, class = "bar"))
+```
+
+In the terminology of S3 generics, `fred.foo`, `fred.bar`, and `fred.default`
+are called *methods* of the generic function `fred`.
+
+## Why Should We Care?
+
+You are unlikely to ever want to write an R generic function until you
+have enough R knowledge to write a CRAN package.  Then, if you want to
+write a regression-like package, you certainly need to
+[consider adding generic functions that users expect to have for such
+packages, like those that have methods for class `"lm"`](https://gist.github.com/cjgeyer/2056ae760b6cf696b551a9542b73d21d#generics-for-lm).
+
+But even if you don't want to write CRAN packages or S3 generics,
+you will need to use them.  So you need to know how to discover them.
+
+All available methods for a generic function are given by the R function
+`methods`.
+```{r}
+methods(summary)
+```
+There is also a function
+```{r}
+.S3methods(summary)
+```
+that lists only S3 methods, if we want to bother with that.
+(In this case *all* the methods are S3.)
+
+The result changes as packages are loaded.
+```{r}
+library(MASS)
+library(mgcv)
+library(aster)
+methods(summary)
+```
+
+Following the comment that `methods` tacks on the end of its output,
+we look at
+```
+?methods
+```
+says that we need to say, for example,
+```
+?summary.lm
+```
+to see the help for the `lm` method for the generic function `summary`.
+
+Although we say
+```
+summary(lout)
+```
+to invoke the `lm` method for the generic function `summary`
+when `lout` is an object of class `"lm"`, if we just say
+```
+?summary
+```
+we don't get the help for the method but rather the help for the
+generic function and perhaps a few methods for (classes of) basic R objects.
+
+The `See Also` section of `?summary` says to look at help for
+`summary.lm` and `summary.glm` but we can see that there are a huge
+number of other summary methods, and only the R function `methods`
+tells us what they are.
+
+In the printout of R function `methods`, a `*` following the name is
+not part of the name of a method, but indicates (according to `?methods`)
+that the method is not exported from the namespace of the package,
+which means for example that
+```{r error=TRUE}
+summary.loglm
+```
+does not show you the source code for the method.  You have to say instead
+```
+getS3method("summary", "loglm")
+```
+to see the source code.
+
+One might hope that there is a function that does the reverse job of
+`methods`, that is, given a class, what generics have a method for it?
+But there does not seem to be such a function.
+
+If one looks at the help for the R function that creates objects of
+this class (for example, `?lm` for objects of class `"lm"`), then
+the `See Also` section of the help should refer to all generics that
+have methods for this class.  But there isn't an R function that does this
+job.
+
+We can do it easily enough for one R package
+```{r}
+myclass <- "lm"
+myregex <- paste("\\.", myclass, "$", sep = "")
+noo <- ls(envir = as.environment("package:stats"))
+loo <- grep(myregex, noo, value = TRUE)
+goo <- sub(myregex, "", loo)
+sapply(goo, function(x) !is.null(getS3method(x, myclass, optional = TRUE)))
+```
+There is some deep magic here we don't want to explain.  The R object `regex`
+is a so-called regular expression which matches the string `".lm"` at the
+end of another string.  The R function `grep` (as called here)
+returns the strings that match, and the R function `sub` (as called here)
+strips off the `".lm"` at then end, leaving us with the name of a putative
+generic function.  We use the R function `getS3method` to tell us whether
+it really is an S3 method.
+
+# Group Generics
+
+Recall that `+`, "[", "[<-", and other such basic syntax of R [are also
+functions](http://www.stat.umn.edu/geyer/3701/notes/basic.pdf#page=45).
+They are also generic, behaving magically as both S3 and S4 generics.
+
+If we do
+```{r}
+get("+")
+```
+it doesn't look like either an S3 or an S4 generic, but
+```{r}
+methods("+")
+```
+Finds some methods.  Some of them are S3.
+```{r}
+.S3methods("+")
+```
+
+There are several differences between group generics and other generics.
+
+ * You cannot tell they are generic by looking at their R source code.
+   You have to look at the documentation.
+
+ * The help `?"+"` refers us to `?Ops` for how the group generic functions
+   work.
+
+ * `?Ops` tells us that, *unlike other generics*, group generics for
+   binary operators *dispatch on the classes of both operands*.
+   We won't bother with those details.  The mechanism usually does
+   what one wants and gives a warning if it isn't clear what method
+   should be called.
+
+Rather than write our own methods for group generics, let us just see them
+in action in the CRAN package `gmp` which does (among other things) infinite
+precision rational arithmetic.
+```{r}
+library(gmp)
+foo <- as.bigq(1:10, 11:20)
+foo
+bar <- as.bigq(6:15, 16:25)
+bar
+foo + bar
+foo * bar
+foo / bar
+set.seed(42)
+as.bigq(rnorm(5))
+```
+
+And now we show method dispatch working on both arguments as we would
+hope that it works.
+```{r error=TRUE}
+foo + 1
+1 + foo
+foo^2
+2^foo
+```
+
+Note that in `1 + foo` it dispatched on the class `"bigq"` of the second
+argument, which is what we wanted (the default method for addition wouldn't
+know what to do with an argument of class `"bigq"`).
+
+This package cannot deal with `2^foo` because
+(as the warning and error messages say) the result isn't rational.
+They refer you to another package that does arbitrary precision floating point.
+
+# Summary
+
+This is as good a place as any to stop.
+
+R OOP isn't much like C++ OOP.  But it does provide very convenient
+functionality for users.  Users can say `summary(foo)` and it works no
+matter what the class of `foo` is (there is always `summary.default`
+if no other method applies).
+
+In some ways the OOP in R is even more powerful because
+
+ * Everything that exists is an object.
+
+ * Everything that happens is a function call.
+
+(the quote from John Chambers referenced in the [course notes on basics
+of R](http://www.stat.umn.edu/geyer/3701/notes/basic.pdf#page=9)).
+
+So generic functions in R can work on everything that exists and everything
+that happens.  You can't say that about C++ style OOP.
+
