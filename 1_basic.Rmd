@@ -1,7 +1,7 @@
 ---
 title: "Stat 3701 Lecture Notes: Basics of R"
 author: "Charles J. Geyer"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+date: "`r format(Sys.time(), '%d/%m/%y')`"
 output:
   html_document:
     number_sections: true

@@ -1,0 +1,5345 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Stat 3701 Lecture Notes: Basics of R},
+  pdfauthor={Charles J. Geyer},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Stat 3701 Lecture Notes: Basics of R}
+\author{Charles J. Geyer}
+\date{六月 19, 2023}
+
+\begin{document}
+\maketitle
+
+\begin{quote}
+Can one be a good data analyst without being a half-good programmer? The
+short answer to that is, `No.' The long answer to that is, `No.'
+
+--- Frank Harrell, 1999 S-PLUS User Conference, New Orleans (October
+1999), quoted by the R function \texttt{fortune} in the CRAN package
+\texttt{fortunes}
+\end{quote}
+
+\hypertarget{license}{%
+\section{License}\label{license}}
+
+This work is licensed under a Creative Commons Attribution-ShareAlike
+4.0 International License
+(\url{http://creativecommons.org/licenses/by-sa/4.0/}).
+
+\hypertarget{r}{%
+\section{R}\label{r}}
+
+\hypertarget{versions}{%
+\subsection{Versions}\label{versions}}
+
+\begin{itemize}
+\item
+  The version of R used to make this document is 4.1.1.
+\item
+  The version of the \texttt{rmarkdown} package used to make this
+  document is 2.14.
+\end{itemize}
+
+\hypertarget{history}{%
+\subsection{History}\label{history}}
+
+First came S, the first statistical computing language that was a real
+computer language. It was invented at
+\href{https://en.wikipedia.org/w/index.php?title=Bell_Labs\&oldid=827987152}{Bell
+Labs} by John Chambers and co-workers. Development started in 1975. It
+was first distributed outside of Bell Labs in 1980. Before 1988, S did
+not have real functions (it had macros to do the same job, but nowhere
+near as well). A version of S with real functions was released in 1988.
+
+S always was and still is proprietary software. It is not free as in
+free beer nor free as in free speech. After purchasing it, one can only
+use it as the license allows. The name S is a one-letter name like C
+(another language from Bell Labs).
+
+In 1988 another company was founded to market S, with additions, as a
+proprietary product called S-PLUS (or S+). After several changes of
+ownership, the current owner (TIBCO Software) does not seem to be
+selling it any more, at least not as a product by itself.
+
+Then came R, an implementation of a language very like S. It was
+invented at the University of Auckland by Ross Ihaka and Robert
+Gentleman. The name R is a one-letter name like S but is also for Ross
+and Robert. Development started in 1992. The first stable release was in
+2000. R is now developed and maintained by the ``R Development Core
+Team.''
+
+R always was and still is free software. It is free as in free beer and
+free as in free speech. After downloading it for free, one can only use
+it as the license allows, but that license
+(\href{https://en.wikipedia.org/wiki/GNU_General_Public_License}{GPL
+version 2}) allows you to use it in any way you please and modify it in
+any way you please, subject only to the proviso that either you do not
+distribute your modifications outside of your organization or you
+distribute your modifications under the same license so that others are
+also free to use and modify your code as they please (subject to the
+same proviso).
+
+One might think that whether software is free or not makes no difference
+to ordinary users because they don't want to modify it. But it makes a
+very big difference indirectly. If anyone anywhere in the world wants to
+modify R to solve a problem they have, they can do so, and they can make
+their solution available to everyone everywhere if they chose (and
+according to the license if they make it available to anyone, then they
+have to make it available to everyone). In contrast, proprietary
+software only gets features that the marketing department thinks will
+have a large enough number of users to make a profit. Since R is the
+only widely used free software statistical computing language, it has
+thousands of features that are not in any proprietary statistical
+computing language. So ordinary users may not want to modify R, but they
+benefit from the expert users who do want to.
+
+According to an
+\href{http://spectrum.ieee.org/static/interactive-the-top-programming-languages-2016}{article
+in \emph{IEEE Spectrum}}, R is the fifth most popular computer
+programming language --- not the fifth most popular \emph{statistical}
+language but the fifth most popular language overall. Their top five
+were C, Java, Python, C++, and R in that order. R is (according to them)
+almost as popular as C++. The next most popular language that is vaguely
+similar is Matlab in fourteenth place (it is more a numerical analysis
+language than a statistics language). The next most popular statistics
+language is SAS in thirty-ninth place. No other statistical language is
+on their list, which ranks forty-nine languages.
+
+Several proprietary companies have been built on R.
+
+\begin{itemize}
+\item
+  In 2007 a company called Revolution Computing (later called Revolution
+  Analytics, later sold to Microsoft) was founded to provide support for
+  R and extensions for R specifically for big data. In July 2021,
+  \href{https://cloudblogs.microsoft.com/sqlserver/2021/06/30/looking-to-the-future-for-r-in-azure-sql-and-sql-server/}{Microsoft
+  announced that this product} will be abandoned as a product and its
+  technology will be replaced by the CRAN distribution of R and some new
+  CRAN packages.
+\item
+  In 2011 a company called RStudio (\url{https://posit.co/}) provided a
+  product of the same name that is an integrated development environment
+  for R (and they also provide other tools for use with R). RStudio is
+  free software. In 2022 the company changed its name to Posit, which is
+  supposed to show that is is also interested in Python and Visual
+  Studio (Microsoft).
+\end{itemize}
+
+\hypertarget{cran-and-bioconductor}{%
+\subsection{CRAN and Bioconductor}\label{cran-and-bioconductor}}
+
+Everything R is found at CRAN (\url{https://cran.r-project.org/}) or
+Bioconductor (\url{https://www.bioconductor.org/}).
+
+CRAN is where you get R if you don't already have it or if you need a
+new version. CRAN is also where more than ten thousand contributed
+extension packages for R come from (CRAN said ``19104 available
+packages'' when I wrote this sentence, no doubt there are more now). Any
+of these packages can be installed in seconds with one R command (or by
+mousing around in the menus in you are using an R app). These packages
+make R very powerful, able to do just about any statistical analysis
+anyone has ever thought of.
+
+I have a habit of pronouncing CRAN as cee-ran like CTAN
+(\url{https://www.ctan.org/}) and CPAN (\url{http://www.cpan.org/})
+after which CRAN is modeled. But almost everyone else pronounces it cran
+as in cranberry. I am trying to change, but sometimes forget.
+
+Bioconductor is a smaller site that has many contributed extension
+packages for ``bioinformatics'' (it ``only'' has 2183 software packages
+as I write this sentence). Bioconductor packages are also easy to
+install, although not quite as easy as CRAN packages.
+
+\hypertarget{manuals}{%
+\subsection{Manuals}\label{manuals}}
+
+All of the books that are the fundamental R documentation are free and
+found at CRAN (under the
+\href{https://cloud.r-project.org/manuals.html}{``Manuals'' link in the
+navigation}). We won't use any other books.
+
+These books can also be found in the R installed on your computer. Run
+the R command \texttt{help.start()} and click on the link for the manual
+in the browser window that pops up. R tells you about this in its
+start-up message every time it starts.
+
+The only one of the R manuals that is written for beginners (like you)
+is
+\href{https://cloud.r-project.org/doc/manuals/r-release/R-intro.html}{\emph{An
+Introduction to R}}. You should take a look at it. Anything that you
+find confusing in class or in the course notes (like this document) can
+probably be clarified by looking up the subject in \emph{An Introduction
+to R}.
+
+\hypertarget{other-books}{%
+\subsection{Other Books}\label{other-books}}
+
+There are now hundreds of books about some statistical topic using R. As
+I write, there are 61 books in the ``Use R!'' series from Springer, 40
+books in the ``R series'' from Chapman \& Hall/CRC, and (if I counted
+correctly) 130 books and videos with ``R'' in the title from O'Reilly.
+There are more from other publishers. Many of these books are very good,
+but we don't recommend any particular one for this course.
+
+\hypertarget{why-r}{%
+\subsection{Why R?}\label{why-r}}
+
+R is the language of choice for statistical computing, at least among
+research statisticians and new companies (start-ups and companies that
+were recently start-ups like Google, Facebook, Amazon, and the like).
+The reasons are that R is a really developer friendly programming
+language. If anyone anywhere in the world wants to make an R package to
+do some problem, CRAN will make it available to everyone everywhere. And
+R does not make changes that break existing code (hardly ever). So such
+packages are easy to maintain. There is nothing like CRAN for competing
+proprietary statistical computing languages. Since R is free software,
+it is hackable by anyone who is a good programmer. It can be made to do
+anything. So again, if anyone anywhere in the world has solved your
+problem, there is likely a CRAN package to do what you want. Or if you
+are a company with great engineers, they can make R do whatever the
+company needs.
+
+In older companies in which statistics has been important for many years
+(drug companies, for example) SAS may be what they use. They've been
+using it for decades and don't want to change. In other academic
+disciplines besides statistics, other computing languages may be used
+for statistics (SAS, SPSS, Stata, for example), but R is displacing them
+more and more. The reason is that there is so much available in R that
+is not available anywhere else. For example, the R package
+\texttt{aster} (\url{http://cran.r-project.org/package=aster}) does many
+forms of life history analysis that nothing else can do. So if hundreds
+of biologists want to analyze their data, they have to learn R. The ones
+that become good at it then become R advocates. Similar stories could be
+told about many kinds of statistical analysis that are available only in
+R.
+
+You also hear Python, Perl, Julia, and other dynamic programming
+languages recommended for statistics or ``data science'' but none of
+these languages actually have much real statistics available, not even
+1\% of what is available on CRAN and Bioconductor. So they are useful if
+the statistics being done is very simple, but not otherwise.
+
+But the main reason we are teaching you R is that is what we know. As a
+statistics major, you are doomed to learn R.
+
+\hypertarget{some-very-basic-stuff}{%
+\section{Some Very Basic Stuff}\label{some-very-basic-stuff}}
+
+\hypertarget{style}{%
+\subsection{Style}\label{style}}
+
+Many organizations have ``style guides'' for the languages their
+programmers use. Many computer languages --- all modern ones, including
+R --- allow a great deal of latitude in how one writes. This can make it
+difficult for one programmer to read code written by another. So, just
+to make life easier for everyone, organizations make everyone use the
+same style.
+
+There are three style guides for R that are somewhat authoritative. The
+first two are actual style guides, one by Google
+(\url{https://google.github.io/styleguide/Rguide.xml}) and another
+(\url{http://adv-r.had.co.nz/Style.html}), a modification of the Google
+guide by Hadley Wickham, author of the R packages \texttt{ggplot2},
+\texttt{dplyr}, and many more (collectively called the Hadleyverse) and
+Chief Scientist at RStudio (\url{https://www.posit.co/}). The other is
+the source code of R by the R Development Core Team. (Go to
+\url{https://cran.r-project.org/} and download the source code for the
+current version. I am not actually suggesting you do this now. Reading R
+source code is not easy. You will have to do that eventually to become
+an R guru, if you want to be one. But not yet.)
+
+\hypertarget{commands}{%
+\subsection{Commands}\label{commands}}
+
+R commands do not need semicolons. R commands are terminated by newlines
+if they are syntactically complete. Otherwise they continue on the next
+line.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{2} \SpecialCharTok{+} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{2} \SpecialCharTok{+}
+\DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(}\DecValTok{2}
+\SpecialCharTok{+} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+You can use semicolons to put a lot of R commands on one line, but don't
+(the Google R style guide recommends against this).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{2} \SpecialCharTok{+} \DecValTok{2}\NormalTok{; pi; }\StringTok{"argle bargle"}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 3.141593
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "argle bargle"
+\end{verbatim}
+
+\hypertarget{assignment}{%
+\subsection{Assignment}\label{assignment}}
+
+Use \texttt{\textless{}-} for assignment, not \texttt{=}. Yes, the
+former is harder to type, but R from the most authoritative sources uses
+the former (including the R sources). The assignment operator for R and
+the S language that preceded it was \texttt{\textless{}-} for decades
+before John Chambers decided to add \texttt{=} to make the C++
+programmers happy, which of course it didn't (actually I have no idea
+what his motivation was). The style guides and the R source code do not
+agree with Chambers.
+
+Strangely, \texttt{-\textgreater{}} is also an assignment operator.
+There is also a function \texttt{assign}. There are also
+\texttt{\textless{}\textless{}-} and
+\texttt{-\textgreater{}\textgreater{}} operators.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{foo }\OtherTok{\textless{}{-}} \DecValTok{2}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{foo }\OtherTok{=} \DecValTok{3}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{4} \OtherTok{{-}\textgreater{}}\NormalTok{ foo}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{foo }\OtherTok{\textless{}\textless{}{-}} \DecValTok{5}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{6} \OtherTok{{-}\textgreater{}\textgreater{}}\NormalTok{ foo}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 6
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{assign}\NormalTok{(}\StringTok{"foo"}\NormalTok{, }\DecValTok{7}\NormalTok{)}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 7
+\end{verbatim}
+
+All of these do exactly the same thing in this context. In other
+contexts, they do different things. Inside function bodies, the
+assignments with the double headed arrows do something different, which
+we won't explain here. The \texttt{assign} function with optional
+arguments allows the most flexibility in assignment and the most precise
+specification of where the assignment is done, and we won't explain that
+here either.
+
+In short, use \texttt{\textless{}-} for assignment.
+
+\hypertarget{autoprinting}{%
+\subsection{Autoprinting}\label{autoprinting}}
+
+An R command that is not an assignment and is executed at the top level
+(not inside a function) automatically prints the value of the
+expression. So the way to see what an R object is, is just to make that
+object by itself an R command.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \DecValTok{1}
+\NormalTok{x}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+
+If the object is way too big to be worth looking at, the R functions
+\texttt{head}, \texttt{tail}, and \texttt{summary}, may be helpful.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
+\FunctionTok{head}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.1534964  0.8051548 -0.2743857 -0.3730037 -0.1891488 -1.6113801
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tail}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.4829256  0.1175186 -1.4659505 -1.5920897  0.7187971 -2.0885274
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+## -3.911224 -0.667213 -0.002561  0.005939  0.688505  3.794504
+\end{verbatim}
+
+This feature is called autoprinting, and, though it seems very simple,
+it is actually rather complicated. It can be changed by using the R
+function \texttt{invisible}, which makes what would ordinarily print not
+print, and it actually works by hidden calls to the R function
+\texttt{print} or \texttt{show} (for S4 objects), which are generic
+functions, so what gets printed is appropriate for the type of object.
+That explanation may make no sense at this point, more about this later.
+\href{https://cloud.r-project.org/doc/manuals/r-release/R-ints.html\#Autoprinting}{Section
+1.6 of \emph{R Internals}} explains (but that reference also makes no
+sense to beginners).
+
+Summary: assignment commands don't print their values and other commands
+do.
+
+This does not mean that assignment expressions don't have values. They
+do. That's why
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ y }\OtherTok{\textless{}{-}} \DecValTok{2}
+\NormalTok{x}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{y}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2
+\end{verbatim}
+
+works.
+
+\hypertarget{whitespace}{%
+\subsection{Whitespace}\label{whitespace}}
+
+As in C and C++, whitespace is mostly not needed in R. There are a few
+places where if things were run together, it would change the meaning,
+but not many. So one can write
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \DecValTok{2}
+\NormalTok{x}\OtherTok{\textless{}{-}}\DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+but the style guides recommend using white space to make it easier for
+people to read, whether the computer needs it or not.
+
+\hypertarget{objects}{%
+\subsection{Objects}\label{objects}}
+
+\begin{quote}
+To understand computations in R, two slogans are helpful:
+
+\begin{itemize}
+\tightlist
+\item
+  Everything that exists is an object.
+\item
+  Everything that happens is a function call.
+\end{itemize}
+
+--- John Chambers, quoted in Section 6.3 of \emph{Advanced R} by Hadley
+Wickham
+\end{quote}
+
+In R everything is an \emph{object}. This is a triviality. The technical
+term used to refer to R thingummies is \emph{object}.
+
+\hypertarget{object-oriented-programming}{%
+\subsection{Object-Oriented
+Programming}\label{object-oriented-programming}}
+
+By calling thingummies ``objects'' this does not mean we are doing
+\emph{object-oriented programming} (OOP) that you may have heard about
+in your C++ class. R objects are not like C++ objects. In R
+\emph{everything} is an object. In C++ only very special things that are
+instances of C++ classes created with the C++ \texttt{new} operator are
+objects. In R, numbers, functions, bits of the R language (R
+expressions) are also objects. In C++ those things are definitely not
+objects. The C programming language doesn't have any objects at all,
+either in the C++ sense or the R sense.
+
+R is not a particularly OOPy language. It does have three different OOP
+systems in the R core (the stuff you get without having to attach a
+package). And it has several more OOP systems in packages found in
+contributed extension packages on CRAN. But none of these OOP systems
+act like the C++ OOP system. Moreover none of the OOP systems are
+necessary to most R programming. Most R programming is not OOPy.
+
+So forget what you learned about OOP in your C++ course. It won't help
+you with R.
+
+\hypertarget{dynamic}{%
+\subsection{Dynamic}\label{dynamic}}
+
+R is a \emph{dynamic} programming language. This means two things.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Any name can be assigned objects of any type. Unlike C and C++ you do
+  not have to ``declare'' what type of object goes with each name.
+\item
+  You don't compile in the sense that you compile C and C++. You can
+  just type or cut-and-paste R commands into the R program and see what
+  happens.
+\end{enumerate}
+
+This makes R infinitely easier to program than C/C++.
+
+Nevertheless, R is just as powerful a language as C++. It is not as
+powerful as C. You can write operating systems (Windows, OS X, Linux) in
+C but not in any other so-called high level language. (That is why C is
+sometimes called a middle level language.)
+
+\hypertarget{reproducibility}{%
+\subsection{Reproducibility}\label{reproducibility}}
+
+Although you can type or cut-and-paste R commands into the R program and
+see what happens, you shouldn't when doing serious work. Put all of your
+R in a file, and run it in a clean R environment. The command to do this
+from an operating system command line is
+
+\begin{verbatim}
+R CMD BATCH --vanilla foo.R
+\end{verbatim}
+
+Here \texttt{foo.R} is the file with the R commands. A file called
+\texttt{foo.Rout} will be produced. All of the R commands in
+\texttt{foo.R} will be executed and all of the results will go into
+\texttt{foo.Rout}.
+
+Except for randomness in random numbers used (and this can be removed by
+setting random number generator seeds, about which more later), this is
+100\% reproducible. Throwing code at the interpreter is not reproducible
+unless you deliberately start R so the global environment is empty and
+type in \emph{exactly} the same commands every time.
+\texttt{R\ CMD\ BATCH} is much more reproducible. We will insist that
+assignments use \texttt{R\ CMD\ BATCH} or something else 100\%
+reproducible (R markdown, for example).
+
+An alternative to using a new R process started with the
+\texttt{-\/-vanilla} flag is to put the command
+
+\begin{verbatim}
+freshr::freshr()
+\end{verbatim}
+
+at the top of your R script or R markdown file. This will remove
+everything from the R global environment and unload any packages that
+are not loaded by default. So it has pretty much the same effect as
+starting a new R process.
+
+\hypertarget{help}{%
+\subsection{Help}\label{help}}
+
+The R function \texttt{help} gives you the somewhat inappropriately
+named help on a subject (usually on a function or on a dataset, but help
+on other things also exists). Many people do not find this help helpful.
+It depends on what you are looking for.
+
+R help pages are modeled after unix man pages. They are supposed to be
+complete, concise, and correct. Most computer ``help'' outside of R help
+pages or unix man pages is none of these things. It tries to be helpful
+and friendly and thus omits lots of things (not complete), belabors what
+it does cover (not concise), and dumbs down things to the point of being
+wrong (not correct). Many people nevertheless find this stuff helpful.
+Again, it depends on what you are looking for.
+
+R help pages, on the other hand, do correctly answer all questions you
+might have. But sometimes the answers are so terse, you may not
+understand them. They are thus useful only when you know the basics of
+the subject but need to know some technical detail that you either
+forgot or never new. \emph{Exactly} what does this function do?
+\emph{Exactly} what is the name of some argument to this function?
+Questions like that. R help pages do not give any background. They do
+not tell you why or when you might want to use a function.
+
+For background, you need a book, perhaps \emph{Introduction to R},
+perhaps some other book. In between help pages and books, are package
+vignettes, which not all packages have. For example, in the CRAN package
+\texttt{mcmc} (\url{http://cran.r-project.org/package=mcmc}) there are
+several vignettes; the main one that shows basic use of the package is
+shown by the R commands
+
+\begin{verbatim}
+library(mcmc)
+vignette("demo", "mcmc")
+\end{verbatim}
+
+(We cannot show the output of this command in this document because R
+displays the output in a separate window. But if you do this
+interactively, it will work. This applies to many commands in this
+section.)
+
+As an example of using help, I had to do \texttt{help(vignette)} because
+I can never remember whether this function is named \texttt{vignette} or
+\texttt{vignettes} or even how to spell it. Moreover, I did not remember
+the order of the arguments or their names, so I needed the help for that
+too.
+
+To see all the vignettes for this package do
+
+\begin{verbatim}
+library(mcmc)
+vignette(package = "mcmc")
+\end{verbatim}
+
+There is another command \texttt{help.search} that may be useful when
+you do not know the name of the function (or other thing) that you want
+help for. For example
+
+\begin{verbatim}
+help.search("help")
+\end{verbatim}
+
+returns a list of R functions that have ``help'' in their help page
+titles or names. Some of these are involved in the R help system
+(including \texttt{help.search} itself); others are not.
+
+R has two shorthands for getting help.
+
+\begin{verbatim}
+?whatever
+??whatever
+\end{verbatim}
+
+are shorthand for
+
+\begin{verbatim}
+help(whatever)
+help.search(whatever)
+\end{verbatim}
+
+(The reason for the lack of quotation marks in these examples is
+explained in the following section).
+
+\hypertarget{non-standard-evaluation}{%
+\subsection{Non-standard Evaluation}\label{non-standard-evaluation}}
+
+Some R functions use what some call ``non-standard evaluation,'' (a term
+apparently coined by Hadley Wickham (\url{http://adv-r.had.co.nz/})).
+Instead of just evaluating their arguments, they play tricks with some
+of them.
+
+This ``playing tricks'' is possible because R expressions are R objects
+too. So R can look at them and try to understand them and not just
+evaluate them.
+
+An example of this is when you do a plot and do not specify labels for
+the horizontal and vertical axes, R makes up some labels from the
+expressions that specify the horizontal and vertical coordinates of the
+points plotted.
+
+Another example is help.
+
+\begin{verbatim}
+help("ls")
+help(ls)
+?ls
+?"ls"
+\end{verbatim}
+
+all do the same thing (show the help for the R function named
+\texttt{ls}). But
+
+\begin{verbatim}
+help("function")
+help(function)
+?function
+?"function"
+\end{verbatim}
+
+do not all do the same thing. The ones without quotation marks are an
+error and an incomplete R statement, neither of which shows the help
+page. What is going on here?
+
+The non-standard evaluation here is inside the R function named
+\texttt{help}. Before that function is even invoked, the R interpreter
+(the part of the R program that actually executes R commands) must parse
+the command. The text \texttt{help(function)} is not a valid R statement
+because \texttt{function} is a keyword that must be followed by a
+function definition. So an error occurs before the R function named
+\texttt{help} can try to do its trick of working whether or not there
+are quotation marks. The problem is similar with \texttt{?function}
+except here since nothing follows \texttt{function} the R interpreter
+realizes that you could follow this with a definition of a function, so
+it just prints the prompt for a continuation line. And, of course, this
+has nothing to do with what you wanted (help for the function named
+\texttt{function}).
+
+The example of the R help system, shows that non-standard evaluation is
+sometimes problematic. When in doubt, use the quotation marks.
+
+A lot of R is like this. R does a lot of tricky things that are helpful
+most of the time (omitting quotation marks saves two whole keystrokes
+when getting help) but when it is not helpful, it is \emph{seriously}
+unhelpful.
+
+In programming, one should never use non-standard evaluation unless that
+is what has to be done to get the job done. For example, inside a
+function you are writing, you may need to assure that a package is
+loaded, The function for this is named \texttt{require}. And it plays
+non-standard evaluation tricks just like \texttt{help}. Both
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{require}\NormalTok{(mcmc)}
+\FunctionTok{require}\NormalTok{(}\StringTok{"mcmc"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+work. But you should only use the latter in programs you write.
+
+The ability of R to do computing on the language is remarkable and far
+beyond what most computer languages can do (only LISP and Scheme are
+comparable). So the fact that R can do non-standard evaluation is a good
+thing. The fact that non-standard evaluation can be used where not
+helpful does not automatically make it bad. Only that particular use is
+(arguably) bad. It probably should not have been used in the R functions
+\texttt{help} and \texttt{help.search}, but it is too late to change
+that now.
+
+\hypertarget{functions}{%
+\section{Functions}\label{functions}}
+
+\hypertarget{functional-programming}{%
+\subsection{Functional Programming}\label{functional-programming}}
+
+R is a \emph{functional} programming language. This means that functions
+are first class objects that you can do anything with that you could do
+to any other object. You can assign them to variable names, or you can
+assign them to be parts of compound objects (like lists), or you can use
+them as arguments or values of other functions.
+
+In this one respect, R is exactly like Haskell or Javascript or F\# or
+Clojure or Ruby or other functional programming languages. In other
+aspects, R is very different from those languages.
+
+\begin{quote}
+This {[}closures{]} is the best idea in the history of programming
+languages.
+
+--- Douglas Crockford
+\end{quote}
+
+Crockford was talking about Javascript, but R has the same idea. It is
+the function named \texttt{function}, which creates functions.
+Technically, they are called ``closures'' for reasons to be explained
+later.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{typeof}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x) x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "closure"
+\end{verbatim}
+
+In this respect R is different from and better than S. The R function
+named \texttt{function} creates true closures, where S and S-PLUS did
+not, as explained in
+\href{https://cloud.r-project.org/doc/FAQ/R-FAQ.html\#Lexical-scoping}{Section
+3.3.1 of the R FAQ}.
+
+\hypertarget{pure-functional-programming}{%
+\subsection{Pure Functional
+Programming}\label{pure-functional-programming}}
+
+In a \emph{pure} functional programming language, functions do not have
+side effects. If called with the same values for the same arguments,
+they must always produce the same results.
+
+There are very few totally pure functional programming languages because
+they cannot vary what they do to adjust to the outside world. They
+cannot do input or output, they cannot do random numbers, they cannot
+tell the time or date. And so forth. R isn't totally pure either.
+
+But it is more or less pure as far as computation goes. Unlike C and C++
+functions, R functions cannot change the values of their arguments. In R
+there is only one kind of argument (R object). There is none of this
+nonsense about pointers and references. In C, you can write a function
+that changes its argument (or more precisely what its argument points
+to)
+
+\begin{verbatim}
+void bar(int *x)
+{
+    *x = 2;
+}
+\end{verbatim}
+
+when you call it as follows
+
+\begin{verbatim}
+int one = 1;
+bar(&one);
+\end{verbatim}
+
+after the call to \texttt{bar} returns, the value of \texttt{one} is 2.
+
+In C++ the above also works (because almost all C is also valid C++) but
+the following also works
+
+\begin{verbatim}
+void baz(int& x)
+{
+    x = 2;
+}
+\end{verbatim}
+
+when you call it as follows
+
+\begin{verbatim}
+int one = 1;
+baz(one);
+\end{verbatim}
+
+after the call to \texttt{baz} returns, the value of \texttt{one} is 2.
+
+In R nothing like this is possible the way R functions are commonly
+programmed.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ralph }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}
+\NormalTok{    x }\OtherTok{\textless{}{-}} \DecValTok{2}
+    \FunctionTok{return}\NormalTok{(x)}
+\NormalTok{\}}
+\NormalTok{x }\OtherTok{\textless{}{-}} \DecValTok{1}
+\FunctionTok{ralph}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+
+Inside the function, the value of \texttt{x} is changed to 2, but
+outside the function the value of \texttt{x} is unchanged by the
+function. There are two variables named \texttt{x} one inside the
+function and one outside. This is just like C or C++ functions that have
+non-pointer, non-reference arguments. The C or C++ function
+
+\begin{verbatim}
+int ralph(int x)
+{
+    x = 2;
+    return x;
+}
+\end{verbatim}
+
+behaves just like our R function of the same name above.
+
+R environments and R reference classes, which are syntactic sugar over
+environments, are exceptions. But they are little used. (At least they
+are rarely used explicitly. A new environment is involved in every
+function definition and every function invocation. More on this later.)
+
+The vast majority of R functions cannot change their arguments the way C
+and C++ functions can. This makes R much easier for programmers to
+program, and, more importantly, \emph{much easier for users to use}. The
+only way an ordinary R function that does not do I/O or use random
+numbers can have an effect on the world outside itself is to return a
+value.
+
+Every time a function that does not do input, use random numbers, or
+access the date, time, process ID, or some such thing (all of which are
+forms of input) is called with the same values of the same arguments, it
+will return the same result. In short, it is \emph{pure functional}.
+Thus \emph{pure functional} is the normal style of R programming. Use
+it, don't try to fight it.
+
+If you need to return lots and lots of stuff, then put it in a list
+(which makes it one R object), and return that. That's what model
+fitting functions like \texttt{lm} and \texttt{glm} do. It is a very
+common R design pattern. More on this later.
+
+\hypertarget{functions-assigned-names}{%
+\subsection{Functions Assigned Names}\label{functions-assigned-names}}
+
+Here are some examples of R being a functional programming language.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) x }\SpecialCharTok{+}\NormalTok{ y}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+Never mind that this is just a toy example (we don't need a function for
+addition, we already have one). This shows the idiomatic way to define a
+function in R, at least a one-liner. A function that needs multiple
+lines of code for its implementation needs curly brackets around the
+body of the function
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) \{}
+\NormalTok{   x }\OtherTok{\textless{}{-}} \FunctionTok{cos}\NormalTok{(x)}
+\NormalTok{   y }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y)}
+\NormalTok{   x }\SpecialCharTok{+}\NormalTok{ y}
+\NormalTok{\}}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 19.66939
+\end{verbatim}
+
+But unlike in C and C++, the curly brackets are not needed for
+one-liners.
+
+How does the function know what value to return? It returns the value of
+the last expression it evaluates, in the examples above the value of
+\texttt{x\ +\ y}.
+
+The R function \texttt{return} immediately returns a value from a
+function (and no further code in the function body is executed). So we
+could have written
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) }\FunctionTok{return}\NormalTok{(x }\SpecialCharTok{+}\NormalTok{ y)}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+if we wanted our function to look more like C/C++. But it still doesn't
+really look like C or C++ because in them \texttt{return} is a keyword
+(part of the syntax of the language) not a function, so (in C/C++) one
+could write \texttt{return\ x\ +\ y} without parentheses. In R that is
+invalid.
+
+Unlike in C or C++, an R function cannot \emph{not} return a value. Many
+R functions seem to not return a value, but they do.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally }\OtherTok{\textless{}{-}} \FunctionTok{plot}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{11}\NormalTok{)}
+\NormalTok{sally}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## NULL
+\end{verbatim}
+
+If a function cannot think of anything better to return, it can return
+\texttt{invisible(NULL)}. That means it returns the R object
+\texttt{NULL} and that object does not get printed when the value is not
+assigned so users don't see it and can imagine that it doesn't exist.
+
+But every function returns a value. Many R functions that ordinary users
+think don't return values (because they never see them and don't wonder
+about them) actually return objects with useful stuff in them. We won't
+worry about that now. Just keep it in mind: every R function returns a
+value (which is an R object).
+
+Just one more example illustrating that the R function \texttt{return}
+returns immediately:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) \{}
+\NormalTok{   x }\OtherTok{\textless{}{-}} \FunctionTok{cos}\NormalTok{(x)}
+\NormalTok{   y }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y)}
+   \FunctionTok{return}\NormalTok{(x }\SpecialCharTok{+}\NormalTok{ y)}
+   \FunctionTok{cat}\NormalTok{(}\StringTok{"just something here that can never get executed}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 19.66939
+\end{verbatim}
+
+\hypertarget{functions-as-arguments-to-functions}{%
+\subsection{Functions as Arguments to
+Functions}\label{functions-as-arguments-to-functions}}
+
+R functions can be arguments to other R functions.
+
+\hypertarget{r-functions-that-work-on-mathematical-functions.}{%
+\subsubsection{R Functions that work on mathematical
+functions.}\label{r-functions-that-work-on-mathematical-functions.}}
+
+\begin{itemize}
+\item
+  R functions \texttt{grad} and \texttt{hessian} and \texttt{jacobian}
+  in R package \texttt{numDeriv} differentiate R functions
+  (approximately) and return the values of the derivatives evaluated at
+  specified points. These are vector or matrix valued derivatives of
+  vector-to-scalar or vector-to-vector functions.
+\item
+  R function \texttt{integrate} does numerical integration of a
+  mathematical function provided to it as an R function.
+\item
+  R functions \texttt{nlm} and \texttt{optim} and \texttt{optimize} and
+  many other R functions that do optimization, optimize a mathematical
+  function provided to them as R functions.
+\item
+  R function \texttt{uniroot} finds a root (zero) of a univariate
+  mathematical function provided to it as an R function.
+\item
+  R function \texttt{boot} in R recommended package \texttt{boot}
+  (installed by default in every installation of R) approximately
+  simulates the sampling distribution of any estimator provided to it as
+  an R function applied to any data using Efron's nonparametric
+  bootstrap.
+\item
+  R function \texttt{metrop} in
+  \href{https://cloud.r-project.org/package=mcmc}{CRAN package mcmc}
+  simulates the distribution of any continuous random vector whose log
+  unnormalized probability density function can be provided to it as an
+  R function.
+\end{itemize}
+
+So this is a very widely used R design pattern. To tell an R function
+about a mathematical function, provide it an R function that evaluates
+that mathematical function (and that function should be pure).
+
+\hypertarget{r-functions-of-the-apply-family}{%
+\subsubsection{R Functions of the Apply
+Family}\label{r-functions-of-the-apply-family}}
+
+R function \texttt{apply} and friends (\texttt{eapply}, \texttt{lapply},
+\texttt{mapply}, \texttt{rapply}, \texttt{sapply}, \texttt{tapply}, and
+\texttt{vapply} in R package \texttt{base} and \texttt{mclapply} and
+\texttt{clusterApply} in R package \texttt{parallel}) apply an arbitrary
+function (provided as an R function) to each element of some compound
+object (vector, list, data frame, table, etc.) and the ones in R package
+\texttt{parallel} do each instance in a different parallel process (if
+possible).
+
+\hypertarget{r-functions-of-the-higher-order-family}{%
+\subsubsection{R Functions of the Higher-Order
+Family}\label{r-functions-of-the-higher-order-family}}
+
+In computer science, any function that takes a function as an argument
+or returns a function as a value is called a \emph{higher-order
+function}. So all of the functions in the preceding two sections are
+higher-order functions. But this terminology is not widely used in R.
+
+In languages much newer than R a bunch of terminology for higher-order
+functions has grown up, and R has copied it. See
+\texttt{help("funprog")} for the list. The most widely used are
+\texttt{Map}, \texttt{Reduce}, and \texttt{Filter}. Some of these are
+built on functions of the apply family.
+
+\hypertarget{some-other-similar-r-functions}{%
+\subsubsection{Some Other Similar R
+functions}\label{some-other-similar-r-functions}}
+
+In this section, we put other functions that take functions as arguments
+like \texttt{sweep}, \texttt{aggregate}, \texttt{outer}, and
+\texttt{kronecker}, just because we don't know where else to put them.
+
+\hypertarget{example}{%
+\subsubsection{Example}\label{example}}
+
+The R function \texttt{optimize} optimizes functions of one (scalar)
+variable. Its first argument is the function to optimize, and the second
+is an interval over which to minimize it.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{exp}\NormalTok{(x) }\SpecialCharTok{{-}} \FunctionTok{log}\NormalTok{(x)}
+\FunctionTok{optimize}\NormalTok{(fred, }\FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\DecValTok{10}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $minimum
+## [1] 0.5671468
+## 
+## $objective
+## [1] 2.330366
+\end{verbatim}
+
+If we look at a plot done by the following code
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{curve}\NormalTok{(fred, }\AttributeTok{from =} \FloatTok{0.1}\NormalTok{, }\AttributeTok{to =} \DecValTok{10}\NormalTok{, }\AttributeTok{log =} \StringTok{"y"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+which is
+
+\begin{figure}
+
+{\centering \includegraphics{1_basic_files/figure-latex/fig1-1} 
+
+}
+
+\caption{Graph of Mathematical Function Computed by R Function fred}\label{fig:fig1}
+\end{figure}
+
+we can see that \texttt{optimize} seems to have found the solution. We
+used a log scale for the vertical axis because otherwise we wouldn't be
+able to see where the minimum was (try the same without
+\texttt{log\ =\ "y"}).
+
+\hypertarget{anonymous-functions}{%
+\subsection{Anonymous Functions}\label{anonymous-functions}}
+
+R functions don't need names. The R function whose name is
+\texttt{function} makes functions. They don't need to be assigned to
+names to work. If we don't bother to give a function a name, the jargon
+widely used in functional programming is that we are using an
+\emph{anonymous function}. We can redo the preceding example using an
+anonymous function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{optimize}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{exp}\NormalTok{(x) }\SpecialCharTok{{-}} \FunctionTok{log}\NormalTok{(x), }\FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\DecValTok{10}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $minimum
+## [1] 0.5671468
+## 
+## $objective
+## [1] 2.330366
+\end{verbatim}
+
+This is just the preceding example with the expression defining
+\texttt{fred} plugged in where \texttt{fred} was passed as an argument
+to \texttt{optimize}. In general, anyplace you can use an R object, you
+can also use an expression defining that object (except when nonstandard
+evaluation is involved).
+
+You don't need to do things like this very often,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{exp}\NormalTok{(x) }\SpecialCharTok{{-}} \FunctionTok{log}\NormalTok{(x))(}\FloatTok{2.7}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 13.88648
+\end{verbatim}
+
+but it does work. Here an anonymous function is being evaluated at the
+argument value 2.7. The parentheses around the function definition are
+necessary to make the whole function definition something we can apply
+the function invocation parentheses to.
+
+\hypertarget{functions-returning-functions-as-values}{%
+\subsection{Functions Returning Functions as
+Values}\label{functions-returning-functions-as-values}}
+
+This is not a common R design pattern, but a few examples exist.
+
+R function \texttt{ecdf} returns a function that evaluates the empirical
+cumulative distribution (corresponding to a data vector).
+
+The term \emph{function factory} is applied to functions whose job is to
+make functions, like \texttt{ecdf}. Another example is the function
+\texttt{make.logl} in \protect\hyperlink{factory}{Section 7.5.4 below}.
+
+Another aspect of this subject is deferred to
+\protect\hyperlink{currying}{Section 6.2} below.
+
+\hypertarget{vectors}{%
+\section{Vectors}\label{vectors}}
+
+In R all of the objects that ``hold stuff'' are vectors. There are no
+objects that can hold only one number or only one character string. You
+may think there are, but those objects are really vectors.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{one }\OtherTok{\textless{}{-}} \DecValTok{1}
+\NormalTok{one}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{is.vector}\NormalTok{(one)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(one)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+
+Why does R print
+
+\begin{verbatim}
+[1] 1
+\end{verbatim}
+
+and
+
+\begin{verbatim}
+[1] TRUE
+\end{verbatim}
+
+for these results? (The \texttt{\#\#} in front of output is a foible of
+the R package \texttt{knitr} and also of \texttt{rmarkdown} which uses
+\texttt{knitr} that I am using to make this document. It doesn't appear
+when you are using R yourself.)
+
+If a vector takes many lines to print, each line starts with the index
+of the first component of the vector to appear on that line.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1}\SpecialCharTok{:}\DecValTok{40}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+## [26] 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+\end{verbatim}
+
+As we can see, the R binary operator \texttt{:} makes sequences. As we
+can also see, R uses one-origin indexing like FORTRAN rather than
+zero-origin indexing like C and C++.
+
+R vectors come in two kinds. In \emph{atomic vectors} all of the
+components have to have the same type. In \emph{lists} the components
+can be of different types.
+
+\hypertarget{types}{%
+\subsection{Types}\label{types}}
+
+The types an R atomic vector can have are (table from
+\href{https://cloud.r-project.org/doc/manuals/r-release/R-lang.html\#Vector-objects}{Section
+2.1.1 of the \emph{R Language Definition}})
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule
+typeof & mode & storage.mode \\
+\midrule
+\endhead
+logical & logical & logical \\
+integer & numeric & integer \\
+double & numeric & double \\
+complex & complex & complex \\
+character & character & character \\
+raw & raw & raw \\
+\bottomrule
+\end{longtable}
+
+The column headings are the names of R functions (\texttt{typeof},
+\texttt{mode}, and \texttt{storage.mode}) and the entries are what they
+say about various kinds of atomic objects. There is one other R function
+of this kind, \texttt{class} that also gives useful information about R
+objects.
+
+\hypertarget{numeric}{%
+\subsubsection{Numeric}\label{numeric}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{one }\OtherTok{\textless{}{-}} \DecValTok{1}
+\FunctionTok{typeof}\NormalTok{(one)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "double"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{mode}\NormalTok{(one)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "numeric"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{storage.mode}\NormalTok{(one)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "double"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{class}\NormalTok{(one)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "numeric"
+\end{verbatim}
+
+The result of \texttt{storage.mode} is what C and C++ think of as the
+type. Type \texttt{"double"} means it is stored as a C or C++
+\texttt{double}.
+
+One might ask, why is R storing the integer 1 as a double? And the
+answer is sometimes it does. For the most part R users (even
+knowledgeable users) do not need to distinguish between integers and
+doubles (between ``fixed point'' and ``floating point'' numbers). The R
+functions \texttt{mode} and \texttt{class} don't distinguish, reporting
+\texttt{"numeric"} for both.
+
+\pagebreak[3]
+
+Let's try another.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lone }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(one)}
+\FunctionTok{typeof}\NormalTok{(lone)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "integer"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{mode}\NormalTok{(lone)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "numeric"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{storage.mode}\NormalTok{(lone)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "integer"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{class}\NormalTok{(lone)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "integer"
+\end{verbatim}
+
+For some reason, the R function \texttt{length} returns its result as
+numbers of type \texttt{"integer"}. So we see R really does have two
+kinds of numbers. But, as we said above, most users never notice the
+difference and don't need to notice.
+
+This is different from C and C++ which have an insane assortment of
+numbers. They have three floating point types (\texttt{float},
+\texttt{double}, and \texttt{long\ double}) and I don't know how many
+integer types (\texttt{char}, \texttt{short}, \texttt{int},
+\texttt{long}, and \texttt{long\ long}, and all of these with
+\texttt{unsigned} in front, like \texttt{unsigned\ char}, and maybe some
+I forgot about). In R we don't worry about any of this. For the most
+part R numbers are just numbers, and we won't say any more about them
+until we discuss computer arithmetic.
+
+\hypertarget{complex}{%
+\subsubsection{Complex}\label{complex}}
+
+The \texttt{"complex"} type is what you'd expect.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{typeof}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in sqrt(-1): NaNs produced
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "double"
+\end{verbatim}
+
+Hmmmmm. That didn't work. Let's try again.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{typeof}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\SpecialCharTok{+}\NormalTok{0i))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "complex"
+\end{verbatim}
+
+What did they do?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sqrt}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in sqrt(-1): NaNs produced
+\end{verbatim}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sqrt}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\SpecialCharTok{+}\NormalTok{0i)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0+1i
+\end{verbatim}
+
+Apparently, R only thinks that \(\sqrt{- 1} = i\) when you tell it that
+you are working with complex numbers by specifying \(- 1\) as a complex
+number, \texttt{-1+0i} in R notation. Otherwise, it says that square
+roots of negative numbers do not exist. The result \texttt{NaN} stands
+for ``not a number''. We will learn more about it when we get to
+computer arithmetic. This behavior is useful in statistics, most of the
+time, because we don't use complex numbers much.
+
+\hypertarget{logical}{%
+\subsubsection{Logical}\label{logical}}
+
+In R the two logical values \texttt{TRUE} and \texttt{FALSE} are special
+values different from any numbers. \texttt{TRUE} and \texttt{FALSE} are
+not R objects but keywords. The technical term in R for words that are
+part of the R syntax and cannot be variable names is ``reserved word''
+rather than ``keyword''. To see the documentation on them, do
+\texttt{?Reserved} or \texttt{help(Reserved)}.
+
+R, for backwards compatibility with its predecessor S, also understands
+\texttt{T} and \texttt{F} as synonyms, but you should never use them.
+The difference is that \texttt{T} and \texttt{F} are not keywords but
+just R objects that can be redefined, and that will wreak havoc if you
+are expecting them to behave as logical values.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{typeof}\NormalTok{(}\ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "logical"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{typeof}\NormalTok{(T)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "logical"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{T }\OtherTok{\textless{}{-}} \StringTok{"spaghetti"}
+\FunctionTok{typeof}\NormalTok{(T)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "character"
+\end{verbatim}
+
+If you try
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ConstantTok{TRUE} \OtherTok{\textless{}{-}} \StringTok{"spaghetti"}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in TRUE <- "spaghetti": invalid (do_set) left-hand side to assignment
+\end{verbatim}
+
+you will find that you can't do that. \texttt{TRUE} is a keyword and
+cannot be the name of an R object.
+
+This is very different from ancient C and C++ which did not have logical
+types. Instead they used zero or types convertible to zero like null
+pointers as their equivalent of \texttt{FALSE}, and everything else as
+their equivalent of \texttt{TRUE}. Modern C and C++ do have what they
+call ``Boolean'' types, they are new and not used by all programmers.
+
+Always use \texttt{TRUE} and \texttt{FALSE}. Never use \texttt{T} and
+\texttt{F} instead.
+
+\hypertarget{character}{%
+\subsubsection{Character}\label{character}}
+
+Type \texttt{"character"}, also called ``string'' by some (probably
+because of the influence of C and C++), we have already seen. Here is
+another example.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S"
+## [20] "T" "U" "V" "W" "X" "Y" "Z"
+\end{verbatim}
+
+\hypertarget{raw}{%
+\subsubsection{Raw}\label{raw}}
+
+Type \texttt{"raw"} cannot be constructed in R. It is there for the use
+of C or C++ functions called from R. They can return objects of type
+\texttt{"raw"} that R does not understand and cannot use. They can only
+be passed to C or C++ functions called from R that understand them. So
+we won't pay any more attention to this type.
+
+\hypertarget{atomic-vectors}{%
+\subsection{Atomic Vectors}\label{atomic-vectors}}
+
+We have already seen atomic vectors (since R has no scalars, every
+object that may have looked like a scalar is really an atomic vector).
+So nothing more needs to be said except that R vectors are much smarter
+than C vectors. Like C++ objects of class \texttt{std::vector} they know
+their own size and type. (In general, every R object knows lots of
+things about itself). Unlike C++ vectors, R vectors don't have methods.
+Instead there are functions that work on them. (This is because all of
+this goes back before R to S before it had OOP.)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(LETTERS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 26
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(LETTERS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "A" "B" "C" "D" "E" "F"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tail}\NormalTok{(LETTERS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "U" "V" "W" "X" "Y" "Z"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(}\FunctionTok{colors}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 657
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(}\FunctionTok{colors}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "white"         "aliceblue"     "antiquewhite"  "antiquewhite1"
+## [5] "antiquewhite2" "antiquewhite3"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tail}\NormalTok{(}\FunctionTok{colors}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "yellow"      "yellow1"     "yellow2"     "yellow3"     "yellow4"    
+## [6] "yellowgreen"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{20}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 20
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(}\FunctionTok{double}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0
+\end{verbatim}
+
+R is just fine with vectors of length zero.
+
+\hypertarget{vectors-operators-and-functions}{%
+\subsection{Vectors, Operators, and
+Functions}\label{vectors-operators-and-functions}}
+
+Since every R object that holds stuff (not functions, expressions, and
+the like) is a vector, operators and functions have to deal with that.
+Since S and R have had this ``everything is a vector'' from their
+beginnings, every function and operator knows how to deal with vectors
+(at least each knows its own special way to deal with vectors).
+
+\hypertarget{componentwise-with-recycling}{%
+\subsubsection{Componentwise with
+Recycling}\label{componentwise-with-recycling}}
+
+Many mathematical functions deal with vectors the same way. If the
+operands or arguments are vectors of the same length, they work
+componentwise.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1}\SpecialCharTok{:}\DecValTok{5} \SpecialCharTok{+} \DecValTok{6}\SpecialCharTok{:}\DecValTok{10}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  7  9 11 13 15
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1}\SpecialCharTok{:}\DecValTok{5} \SpecialCharTok{*} \DecValTok{6}\SpecialCharTok{:}\DecValTok{10}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  6 14 24 36 50
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1}\SpecialCharTok{:}\DecValTok{5} \SpecialCharTok{\^{}} \DecValTok{6}\SpecialCharTok{:}\DecValTok{10}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in 1:5^6:10: numerical expression has 15625 elements: only the first
+## used
+\end{verbatim}
+
+\begin{verbatim}
+##  [1]  1  2  3  4  5  6  7  8  9 10
+\end{verbatim}
+
+Oops! That last wasn't what we meant.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}\SpecialCharTok{\^{}}\NormalTok{(}\DecValTok{6}\SpecialCharTok{:}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]       1     128    6561  262144 9765625
+\end{verbatim}
+
+And many functions work the same
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{, }\DecValTok{6}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\DecValTok{11}\SpecialCharTok{:}\DecValTok{15}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.03270787 0.03048103 0.02849997 0.02673528 0.02515888
+\end{verbatim}
+
+If we look up what this function does (\texttt{?dnorm}), we find that it
+calculates the probability density function of normal distributions; it
+calculates \(f_{\mu, \sigma}(x)\), where the arguments to \texttt{dnorm}
+are \(x\), \(\mu\), and \(\sigma\) in that order. The call above is the
+same as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{11}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.03270787
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{12}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.03048103
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{13}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.02849997
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{9}\NormalTok{, }\DecValTok{14}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.02673528
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{5}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{15}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.02515888
+\end{verbatim}
+
+except for being five commands rather than one.
+
+When the arguments are different lengths, these operators and functions
+still work. When one of the arguments is length one, these do what you'd
+expect.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1}\SpecialCharTok{:}\DecValTok{5} \SpecialCharTok{+} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3 4 5 6 7
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1}\SpecialCharTok{:}\DecValTok{5} \SpecialCharTok{*} \DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  2  4  6  8 10
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}\SpecialCharTok{\^{}}\DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  1  4  9 16 25
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1760327 0.1994711 0.1760327 0.1209854 0.0647588
+\end{verbatim}
+
+This is a special case of a more general rule called the \emph{recycling
+rule}.
+
+\begin{itemize}
+\tightlist
+\item
+  If the operands or arguments are vectors of different lengths, then
+  the length of the result is the length of the longest operand or
+  argument.
+\item
+  Each operand or argument is extended to this length by recycling: for
+  example an operand \texttt{1:2} is extended to length 5 as the vector
+  with components 1, 2, 1, 2, 1.
+\end{itemize}
+
+The recycling rule can be very confusing.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{2}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.39894228 0.19947114 0.10648267 0.09666703 0.07820854
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.3989423
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1994711
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1064827
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.09666703
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.07820854
+\end{verbatim}
+
+Sometimes R gives a warning about this kind of confusion.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1}\SpecialCharTok{:}\DecValTok{2} \SpecialCharTok{+} \DecValTok{1}\SpecialCharTok{:}\DecValTok{3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in 1:2 + 1:3: longer object length is not a multiple of shorter object
+## length
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 2 4 4
+\end{verbatim}
+
+and sometimes it doesn't (as we saw above with \texttt{dnorm}).
+
+I don't recommend you use confusing recycling. If you do, put in a
+comment to explain.
+
+\hypertarget{reduce}{%
+\subsubsection{Reduce}\label{reduce}}
+
+There is another common design pattern where functions take a vector and
+produce a number
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 15
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{prod}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 120
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{max}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{min}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+
+There is even a higher-order function \texttt{Reduce} that uses this
+design pattern with an arbitrary function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{Reduce}\NormalTok{(}\StringTok{"+"}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 15
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{Reduce}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x, y) }\ControlFlowTok{if}\NormalTok{ (x }\SpecialCharTok{\textgreater{}}\NormalTok{ y) x }\ControlFlowTok{else}\NormalTok{ y, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{, }\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+(the first does the same as \texttt{sum}, the second does the same as
+\texttt{max}).
+
+\hypertarget{ifelse}{%
+\subsubsection{Ifelse}\label{ifelse}}
+
+Since every R object is a vector (except for those that aren't). One
+should use this feature of the language as much as possible. In R,
+iteration (\texttt{for} and \texttt{while} loops) is used much less than
+in C and C++. A lot of iteration can be replaced by functions that
+operate on vectors (as all R functions have no choice but to do).
+
+For example, \texttt{sum} does sums without a loop, and \texttt{Reduce}
+does this for any operation. The functions in the apply family (listed
+in \protect\hyperlink{functions-as-arguments-to-functions}{Section 4.4}
+above allow the design pattern of componentwise calculation with
+recycling to be applied with arbitrary functions.
+
+The R function \texttt{ifelse} allows the if-then-else design pattern to
+be applied vectorwise.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{6}\NormalTok{)}
+\NormalTok{x}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  0.79994834  0.21147068 -1.19005869  0.03902818 -0.16398927  0.76525554
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ifelse}\NormalTok{(x }\SpecialCharTok{\textless{}} \DecValTok{0}\NormalTok{, x }\SpecialCharTok{{-}} \DecValTok{3}\NormalTok{, x }\SpecialCharTok{+} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  3.799948  3.211471 -4.190059  3.039028 -3.163989  3.765256
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\SpecialCharTok{+} \DecValTok{3} \SpecialCharTok{*} \FunctionTok{sign}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  3.799948  3.211471 -4.190059  3.039028 -3.163989  3.765256
+\end{verbatim}
+
+\hypertarget{indexing}{%
+\subsection{Indexing}\label{indexing}}
+
+R has four (!)~different ways to ``index'' vectors (extract subvectors,
+or otherwise refer to subvectors).
+
+\begin{itemize}
+\tightlist
+\item
+  vector of positive integers
+\item
+  vector of negative integers
+\item
+  logical vector
+\item
+  character vector
+\end{itemize}
+
+Indexing is also sometimes called subscripting. Because vector indices
+are often denoted as subscripts in mathematics. For example,
+\texttt{?Subscript} gives the help for the indexing operators, but so
+does \texttt{?Extract}, which is the official name of this help page
+(\texttt{Subscript} is an ``alias'').
+
+\hypertarget{indexing-with-positive-integers}{%
+\subsubsection{Indexing with Positive
+Integers}\label{indexing-with-positive-integers}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\DecValTok{7}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "G"
+\end{verbatim}
+
+But here as everywhere else what would be a scalar in C or C++ can be a
+vector in R
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\DecValTok{2} \SpecialCharTok{*} \DecValTok{1}\SpecialCharTok{:}\DecValTok{7} \SpecialCharTok{{-}} \DecValTok{1}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "A" "C" "E" "G" "I" "K" "M"
+\end{verbatim}
+
+So that illustrates the first type (positive integer vector).
+
+\hypertarget{indexing-with-negative-integers}{%
+\subsubsection{Indexing with Negative
+Integers}\label{indexing-with-negative-integers}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{2} \SpecialCharTok{*} \DecValTok{1}\SpecialCharTok{:}\DecValTok{7} \SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "B" "D" "F" "H" "J" "L" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
+\end{verbatim}
+
+(This would be different if we omitted the parentheses.) Negative
+indices indicate components to omit. The result is all of the components
+except the ones whose indices are the positive integers corresponding to
+these negative integers.
+
+\hypertarget{index-zero}{%
+\subsubsection{Index Zero?}\label{index-zero}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\DecValTok{0}\SpecialCharTok{:}\DecValTok{5}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "A" "B" "C" "D" "E"
+\end{verbatim}
+
+Apparently zero is just ignored in an integer index vector.
+
+\hypertarget{indexing-with-logicals}{%
+\subsubsection{Indexing with Logicals}\label{indexing-with-logicals}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\FunctionTok{seq\_along}\NormalTok{(LETTERS) }\SpecialCharTok{\%\%} \DecValTok{2} \SpecialCharTok{==} \DecValTok{1}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "A" "C" "E" "G" "I" "K" "M" "O" "Q" "S" "U" "W" "Y"
+\end{verbatim}
+
+The logical expression indicates odd indices. We see a bunch of new
+stuff here. The R function \texttt{seq\_along} makes the index set for a
+vector, although we could replace this with
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(LETTERS) }\SpecialCharTok{\%\%} \DecValTok{2} \SpecialCharTok{==} \DecValTok{1}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "A" "C" "E" "G" "I" "K" "M" "O" "Q" "S" "U" "W" "Y"
+\end{verbatim}
+
+The \texttt{\%\%} operator calculates remainders (from division, in this
+case division by 2). As in C and C++, the operator for logical equality
+is \texttt{==}.
+
+\pagebreak[3]
+
+We could also do this more simply with
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{length}\NormalTok{(LETTERS), }\DecValTok{2}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "A" "C" "E" "G" "I" "K" "M" "O" "Q" "S" "U" "W" "Y"
+\end{verbatim}
+
+but that wouldn't illustrate logical indexing.
+
+\hypertarget{indexing-with-character-strings}{%
+\subsubsection{Indexing with Character
+Strings}\label{indexing-with-character-strings}}
+
+The fourth kind of indexing (with a character vector) doesn't work
+unless the R object we are taking components out of has names. So let's
+give our example names.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{names}\NormalTok{(LETTERS) }\OtherTok{\textless{}{-}}\NormalTok{ letters}
+\NormalTok{LETTERS[}\FunctionTok{c}\NormalTok{(}\StringTok{"d"}\NormalTok{, }\StringTok{"o"}\NormalTok{, }\StringTok{"g"}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   d   o   g 
+## "D" "O" "G"
+\end{verbatim}
+
+The R function \texttt{c} ``concatenates'' (pastes together) vectors to
+make one vector.
+
+Here we see a very powerful feature of R. Some functions can appear on
+the left-hand side of an assignment. Actually (technical quibble!),~the
+function being called in the example above is not named \texttt{names}
+but rather is named \texttt{names\textless{}-}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{get}\NormalTok{(}\StringTok{"names\textless{}{-}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function (x, value)  .Primitive("names<-")
+\end{verbatim}
+
+but most R users don't know that and don't need to know that. They just
+``know'' that \texttt{names} can be used on either side of an
+assignment.
+
+The R documentation encourages this way of thinking. From the help page
+for these functions, which one gets by \texttt{?names} or
+\texttt{help(names)},
+
+\begin{verbatim}
+Usage:
+
+     names(x)
+     names(x) <- value
+\end{verbatim}
+
+Indexing also works on the left-hand side of an assignment.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{LETTERS[}\FunctionTok{seq\_along}\NormalTok{(LETTERS) }\SpecialCharTok{\%\%} \DecValTok{2} \SpecialCharTok{==} \DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"woof"}
+\NormalTok{LETTERS}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      a      b      c      d      e      f      g      h      i      j      k 
+## "woof"    "B" "woof"    "D" "woof"    "F" "woof"    "H" "woof"    "J" "woof" 
+##      l      m      n      o      p      q      r      s      t      u      v 
+##    "L" "woof"    "N" "woof"    "P" "woof"    "R" "woof"    "T" "woof"    "V" 
+##      w      x      y      z 
+## "woof"    "X" "woof"    "Z"
+\end{verbatim}
+
+The R objects \texttt{LETTERS} and \texttt{letters} are, like \texttt{T}
+and \texttt{F} and \texttt{pi} and some other things, already defined
+when you start R (all of the predefined constants, have the same help
+page, so asking for the help for any one of them shows all of them).
+
+When we started redefining \texttt{LETTERS} we made a new variable in
+our global environment (what R calls where it keeps objects you give
+names by assignment). But the objects with the same names defined by R
+are still there hidden by our assignments (they are in another place,
+more on this later). We can see them again by removing ours.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{rm}\NormalTok{(LETTERS)}
+\NormalTok{LETTERS}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S"
+## [20] "T" "U" "V" "W" "X" "Y" "Z"
+\end{verbatim}
+
+This is the magic of R environments. More on this later.
+
+\hypertarget{type-coercion}{%
+\subsection{Type Coercion}\label{type-coercion}}
+
+R, like C and C++ does a lot of \emph{type coercion} (changing variable
+of one type into another behind your back). Since R has fewer types than
+C and C++, its type coercion is (slightly) less crazy than C/C++'s.
+
+The most useful is coercion of logical to numeric in arithmetic
+contexts. For example,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{100}\NormalTok{)}
+\FunctionTok{sum}\NormalTok{(x }\SpecialCharTok{\textless{}} \DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 47
+\end{verbatim}
+
+counts how many components of \texttt{x} are negative.
+\href{https://cloud.r-project.org/doc/manuals/r-release/R-intro.html\#Logical-vectors}{Section
+2.4 of \emph{Introduction to R}} explains this.
+
+Sometimes useful and sometimes not is automatic coercion of all kinds of
+objects to character in character contexts.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{foo }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}
+\FunctionTok{names}\NormalTok{(foo) }\OtherTok{\textless{}{-}}\NormalTok{ foo }\SpecialCharTok{+} \DecValTok{100}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 101 102 103 104 105 106 107 108 109 110 
+##   1   2   3   4   5   6   7   8   9  10
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{class}\NormalTok{(}\FunctionTok{names}\NormalTok{(foo))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "character"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{letters[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{3}\NormalTok{)}
+\NormalTok{letters[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "1.08418897209967"   "-0.092500294707651" "0.117137334609206" 
+##  [4] "d"                  "e"                  "f"                 
+##  [7] "g"                  "h"                  "i"                 
+## [10] "j"
+\end{verbatim}
+
+The first is arguably useful. The latter may do more harm than good. The
+character conversions are explained in
+\href{https://cloud.r-project.org/doc/manuals/r-release/R-intro.html\#Character-vectors}{Section
+2.6 of \emph{Introduction to R}}.
+
+Coercions can also be performed by explict use of functions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{as.character}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "1" "2" "3" "4" "5"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{as.numeric}\NormalTok{(letters[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: NAs introduced by coercion
+\end{verbatim}
+
+\begin{verbatim}
+## [1]  1.08418897 -0.09250029  0.11713733          NA          NA
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{as.logical}\NormalTok{(}\DecValTok{0}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+\end{verbatim}
+
+Here my claim that R help pages are complete, concise, and correct is
+wrong (I reported this as a bug, but the R core team did not agree, so
+the bug was not fixed). The information is in \texttt{?Logic} but
+apparently nowhere else. That help page says
+
+\begin{quote}
+Numeric and complex vectors will be coerced to logical values, with zero
+being false and all non-zero values being true.
+\end{quote}
+
+The help page for \texttt{as.logical} does not say what it does when the
+argument is numeric. It appears to be following the way of C and C++,
+converting zero to \texttt{FALSE} and everything else to \texttt{TRUE}
+except for \texttt{NA} or \texttt{NaN} which are left as (logical)
+\texttt{NA}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{foo }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\SpecialCharTok{:}\DecValTok{5}\NormalTok{, }\ConstantTok{NA}\NormalTok{))}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  0  1  2  3  4  5 NA
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{as.logical}\NormalTok{(foo)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE    NA
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{foo }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\SpecialCharTok{:}\DecValTok{5}\NormalTok{, pi, }\ConstantTok{NA}\NormalTok{, }\ConstantTok{NaN}\NormalTok{)}
+\CommentTok{\# has to be type double if contains pi}
+\NormalTok{foo}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.000000 1.000000 2.000000 3.000000 4.000000 5.000000 3.141593       NA
+## [9]      NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{as.logical}\NormalTok{(foo)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE  TRUE  TRUE  TRUE  TRUE  TRUE  TRUE    NA    NA
+\end{verbatim}
+
+\hypertarget{lists}{%
+\subsection{Lists}\label{lists}}
+
+Vectors that are not atomic can hold different types of R object. They
+are created by the R function named \texttt{list}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}\AttributeTok{color =} \StringTok{"red"}\NormalTok{, }\AttributeTok{number =}\NormalTok{ pi,}
+    \AttributeTok{method =} \ControlFlowTok{function}\NormalTok{(x, y) x }\SpecialCharTok{+}\NormalTok{ y)}
+\NormalTok{sally}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $color
+## [1] "red"
+## 
+## $number
+## [1] 3.141593
+## 
+## $method
+## function(x, y) x + y
+\end{verbatim}
+
+And they are generally called lists.
+
+\hypertarget{more-on-indexing}{%
+\subsection{More On Indexing}\label{more-on-indexing}}
+
+With lists there are two more kinds of indexing. All of what we saw in
+\protect\hyperlink{indexing}{Section 5.4} above works on lists. But for
+lists there is also another entirely different kind, or perhaps two
+entirely different kinds, depending on how you count.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[}\DecValTok{3}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $method
+## function(x, y) x + y
+\end{verbatim}
+
+makes a list whose single component is the third component of
+\texttt{sally}. That is often not what we want, so there is another kind
+of indexing using double square brackets.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[[}\DecValTok{3}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function(x, y) x + y
+\end{verbatim}
+
+See the difference?
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{sally{[}3{]}} is a list having one element named
+  \texttt{method}, which is a function.
+\item
+  \texttt{sally{[}{[}3{]}{]}} is that function.
+\end{itemize}
+
+Hence \texttt{sally{[}3{]}} is equal to
+\texttt{list(sally{[}{[}3{]}{]})}.
+
+The reason why we need both kinds (single square brackets and double
+square brackets) is that you usually (?) want what double square
+brackets does, but that doesn't always work.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[}\DecValTok{2}\SpecialCharTok{:}\DecValTok{3}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $number
+## [1] 3.141593
+## 
+## $method
+## function(x, y) x + y
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[[}\DecValTok{2}\SpecialCharTok{:}\DecValTok{3}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in sally[[2:3]]: subscript out of bounds
+\end{verbatim}
+
+I didn't know what would happen with the latter until I tried it, but
+the documentation says double square brackets indexing can only select a
+single component (the argument must be a vector of length one). Since
+these are operators the documentation is a bit hard to find. You need to
+quote bits of syntax to see the documentation. For double square
+brackets \texttt{?"{[}{[}"} or \texttt{help("{[}{[}")} does the job. The
+same goes for other reserved words: \texttt{?"function"} or
+\texttt{help("function")} is the way to see the documentation for the
+function named \texttt{function}.
+
+One can also use the \texttt{\$} operator instead of the \texttt{{[}{[}}
+operator if the list has names and if the name in question is a valid R
+name (also called symbol). \texttt{?name} shows the documentation for
+that, except it doesn't tell you what the valid names are. For some
+strange reason, \texttt{?make.names} does tell you what the valid names
+are.
+
+So
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally}\SpecialCharTok{$}\NormalTok{method}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function(x, y) x + y
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[[}\StringTok{"method"}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function(x, y) x + y
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[[}\DecValTok{3}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function(x, y) x + y
+\end{verbatim}
+
+all do the same thing.
+
+But if we change the example
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{names}\NormalTok{(sally)[}\DecValTok{3}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"function"}
+\NormalTok{sally[[}\StringTok{"function"}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function(x, y) x + y
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[[}\DecValTok{3}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function(x, y) x + y
+\end{verbatim}
+
+but
+
+\begin{verbatim}
+sally$function
+
+## Error: unexpected 'function' in "sally$function"
+\end{verbatim}
+
+\texttt{sally\$function} is an error because \texttt{function} is an R
+reserved word hence not a valid name (this is not an Rmarkdown code
+chunk because \texttt{knitr} (which underlies \texttt{rmarkdown}) is too
+clever for its own good here and cannot just echo the actual R error
+message and has to make up its own error message, which is worthless).
+
+\pagebreak[3]
+
+As
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $color
+## [1] "red"
+## 
+## $number
+## [1] 3.141593
+## 
+## $`function`
+## function(x, y) x + y
+\end{verbatim}
+
+suggests,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally}\SpecialCharTok{$}\StringTok{\textasciigrave{}}\AttributeTok{function}\StringTok{\textasciigrave{}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function(x, y) x + y
+\end{verbatim}
+
+does work, but IMHO this is less clear than
+\texttt{sally{[}{[}"function"{]}{]}}.
+
+\hypertarget{nit-picking-about-indexing}{%
+\subsection{Nit Picking about
+Indexing}\label{nit-picking-about-indexing}}
+
+As with \texttt{+}, indexing syntax is syntactic sugar for function
+calls.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{get}\NormalTok{(}\StringTok{"["}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Primitive("[")
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{get}\NormalTok{(}\StringTok{"[["}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Primitive("[[")
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{get}\NormalTok{(}\StringTok{"$"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Primitive("$")
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{get}\NormalTok{(}\StringTok{"[\textless{}{-}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Primitive("[<-")
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{get}\NormalTok{(}\StringTok{"[[\textless{}{-}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Primitive("[[<-")
+\end{verbatim}
+
+but, like most R users, you don't need to know these functions exist
+unless you want to implement them yourself for some R class that you
+have created, but before we can understand what that means we would have
+to learn about the basic R OOP system (so-called S3 classes), and this
+is not the time for that.
+
+Nevertheless, this does illustrate the quotation in
+\protect\hyperlink{objects}{Section 3.6} above: in R \emph{everything
+that happens is a function call,} even things that don't look at all
+like function calls.
+
+\hypertarget{more-on-functions}{%
+\section{More On Functions}\label{more-on-functions}}
+
+The examples in \protect\hyperlink{functions}{Section 4} above
+illustrate most of the things that knowledgeable users of R (what this
+course is trying to turn you into) do with functions. But there is lots
+more to learn about functions.
+
+\hypertarget{storing-functions-in-objects}{%
+\subsection{Storing Functions in
+Objects}\label{storing-functions-in-objects}}
+
+One can put an anonymous function into a compound object.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}\AttributeTok{color =} \StringTok{"red"}\NormalTok{, }\AttributeTok{number =}\NormalTok{ pi,}
+    \AttributeTok{method =} \ControlFlowTok{function}\NormalTok{(x, y) x }\SpecialCharTok{+}\NormalTok{ y)}
+\NormalTok{sally}\SpecialCharTok{$}\FunctionTok{method}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+As we saw in \protect\hyperlink{more-on-indexing}{Section 5.7} above,
+one R syntax to extract a named element from a list is the \texttt{\$}
+operator. The C++ syntax to extract a method or a field from an object
+is the \texttt{.} operator. Since both languages are about the same age,
+there is no reason to think the C++ one is in any way better, even
+though it is more widely copied in other languages. This sort of looks
+like \texttt{sally} is a C++-like object and \texttt{method} is a method
+of its class. But R isn't using any such notions here. An R list can
+contain anything. So it can contain functions. Here
+\texttt{sally\$method} happens to be a function. To invoke a function,
+you put its arguments in a comma-separated list in round brackets after
+it. Like the example above.
+
+Here is another example that shows the same thing with weirder syntax.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sally[[}\DecValTok{3}\NormalTok{]](}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+Here \texttt{sally{[}{[}3{]}{]}} is the third component of
+\texttt{sally}, which is a function. We invoke it in the usual way.
+
+\hypertarget{currying}{%
+\subsection{Functions whose Values are Functions}\label{currying}}
+
+Here is an example of a function returning a function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y) }\ControlFlowTok{function}\NormalTok{(x) x }\SpecialCharTok{+}\NormalTok{ y}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{)(}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+Now we have gotten to the power of functional programming that makes it
+both much more powerful than procedural programming languages like C++
+and Java but also very confusing to programmers trained in procedural
+programming. What is going on here?
+
+Here \texttt{fred} is a function whose value is a function. So when we
+say \texttt{fred(2)} we have invoked the function \texttt{fred} with the
+argument \texttt{2} and gotten a function of one argument that adds 2 to
+that argument. (One might prefer saying it adds \texttt{y} to that
+argument, where \texttt{y} is the value of the argument of
+\texttt{fred}. Here \texttt{y} is 2.) So \texttt{fred(2)} is a function
+of one variable, that adds 2 to its argument. We invoke it by putting
+its argument in parentheses after it. Hence the above.
+
+All very logical. \href{https://en.wikipedia.org/wiki/Spock}{Mr.~Spock}
+or \href{https://en.wikipedia.org/wiki/Data_(Star_Trek)}{Lieutenant
+Commander Data} would have no trouble. You may have some trouble
+following this.
+
+Functions like this are used in various places in mathematics. We can
+think of this \texttt{fred} as almost but not quite the same thing as
+our first example of a function named \texttt{fred} in
+\protect\hyperlink{functions-assigned-names}{Section 4.3} above. They do
+the same thing. Both ``are'' functions of two arguments that add their
+arguments, but ``are'' has to be in scare quotes because only the first
+example is really a function of two arguments. It is invoked
+\texttt{fred(2,\ 3)} just like any other R function of two arguments.
+The higher-order version is a function of one argument that returns a
+function of one argument, so it is invoked \texttt{fred(2)(3)} as above.
+It is almost but not quite the same. The two functions do the same
+thing, but they are not invoked in the same way. Going from one to the
+other is called \href{https://en.wikipedia.org/wiki/Currying}{currying
+and uncurrying}.
+
+This design pattern is less widely used in R than the other kind of
+higher-order function (taking functions as arguments). But there are a
+few examples. The R function \texttt{ecdf}, given a data vector, returns
+the empirical cumulative distribution function (ECDF) corresponding to
+that data. What it returns is an R function that evaluates the ECDF. The
+R functions \texttt{D} and \texttt{deriv} differentiate R expressions
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{D}\NormalTok{(}\FunctionTok{expression}\NormalTok{(x}\SpecialCharTok{\^{}}\DecValTok{3}\NormalTok{), }\StringTok{"x"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 3 * x^2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{D}\NormalTok{(}\FunctionTok{expression}\NormalTok{(}\FunctionTok{sin}\NormalTok{(x)), }\StringTok{"x"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## cos(x)
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{deriv}\NormalTok{(}\FunctionTok{expression}\NormalTok{(}\FunctionTok{sin}\NormalTok{(x)), }\StringTok{"x"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## expression({
+##     .value <- sin(x)
+##     .grad <- array(0, c(length(.value), 1L), list(NULL, c("x")))
+##     .grad[, "x"] <- cos(x)
+##     attr(.value, "gradient") <- .grad
+##     .value
+## })
+\end{verbatim}
+
+but \texttt{deriv} can also produce a function
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{deriv}\NormalTok{(}\FunctionTok{expression}\NormalTok{(}\FunctionTok{sin}\NormalTok{(x)), }\StringTok{"x"}\NormalTok{, }\AttributeTok{function.arg =} \StringTok{"x"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function (x) 
+## {
+##     .value <- sin(x)
+##     .grad <- array(0, c(length(.value), 1L), list(NULL, c("x")))
+##     .grad[, "x"] <- cos(x)
+##     attr(.value, "gradient") <- .grad
+##     .value
+## }
+\end{verbatim}
+
+Readers may find these examples using \texttt{deriv} incomprehensible at
+this point. Hopefully, these will make sense after we learn more.
+
+\hypertarget{partially-evaluated-functions}{%
+\subsection{Partially Evaluated
+Functions}\label{partially-evaluated-functions}}
+
+Many, perhaps most, knowledgeable R users do not understand functions
+that return functions, currying, and uncurrying. They do not need to
+because these techniques are not much used in R. But they do understand
+something very similar.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) x }\SpecialCharTok{+}\NormalTok{ y}
+\NormalTok{fran }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{fred}\NormalTok{(x, }\DecValTok{2}\NormalTok{)}
+\FunctionTok{fran}\NormalTok{(}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+Here we have a function \texttt{fred} with two arguments \texttt{x} and
+\texttt{y}, but we want to consider it a function of \texttt{x} only for
+fixed \texttt{y}. We call this new function \texttt{fran}. This is a
+very useful technique. It is widely used in mathematics.
+
+Name the mathematical functions that correspond to the R functions
+\texttt{fred} and \texttt{fran} by the letters \(f\) and \(g\),
+respectively (because in math we usually denote functions by single
+letters). What is the relationship between \(f\) and \(g\)? It is \[
+   g(x) = f(x, 2), \qquad \text{for all $x$}.
+\] This concept is so important that mathematicians have many ways to
+write it. We could also say that the function \(g\) is
+\(f(\,\cdot\,, 2)\). We could also say that the function \(g\) is
+\(x \mapsto f(x, 2)\).
+
+\hypertarget{some-real-nit-picking}{%
+\subsection{Some Real Nit Picking}\label{some-real-nit-picking}}
+
+\hypertarget{the-function-function}{%
+\subsubsection{The Function Function}\label{the-function-function}}
+
+We said above the R function named \texttt{function} makes other
+functions, but that is not quite correct. If \texttt{function} were
+actually an R function then typing the function name on a line by itself
+would tell R to print the definition of the function. This works with
+every other function, for example,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function (..., na.rm = FALSE)  .Primitive("sum")
+\end{verbatim}
+
+But it doesn't work with \texttt{function}: if you type
+\texttt{function} on a line by itself at the R interpreter, it just says
+this is not a complete command and gives you a continuation prompt. So
+\texttt{function} is actually an R keyword (part of the syntax) rather
+than just the name of a function that is defined somewhere in R. There
+is actually an R function named \texttt{function}, and it is called when
+expressions containing the keyword \texttt{function} are evaluated. To
+see it we can do either of the following
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{get}\NormalTok{(}\StringTok{"function"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Primitive("function")
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\StringTok{\textasciigrave{}}\AttributeTok{function}\StringTok{\textasciigrave{}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## .Primitive("function")
+\end{verbatim}
+
+This doesn't tell us much, only that the R function named
+\texttt{function} is very low level. There is almost no R code in its
+definition.
+
+\hypertarget{the-addition-function}{%
+\subsubsection{The Addition Function}\label{the-addition-function}}
+
+Here is another definition of our first example that is very hard to
+read.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \StringTok{\textasciigrave{}}\AttributeTok{+}\StringTok{\textasciigrave{}}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+This tells us that in R \emph{almost everything} is a function. A lot of
+R syntax is
+\href{http://www.catb.org/jargon/html/S/syntactic-sugar.html}{syntactic sugar}
+for function calls. When you write \texttt{2\ +\ 3} in R, what actually
+happens is that a function whose name is \texttt{+} and which has two
+arguments is invoked with 2 and 3 as the arguments.
+
+This illustrates again the quotation in
+\protect\hyperlink{objects}{Section 3.6} above: in R \emph{everything
+that happens is a function call,} even things that don't look at all
+like function calls.
+
+\hypertarget{the-quit-function}{%
+\subsubsection{The Quit Function}\label{the-quit-function}}
+
+Why does one type \texttt{q()} to quit R if you are using the command
+line rather than a GUI app? Because the function named \texttt{q} is the
+function that quits R and \texttt{q()} is calling this function with no
+arguments.
+
+In R lots of things are functions that are not functions in other
+programming languages.
+
+\hypertarget{still-more-on-functions}{%
+\section{Still More On Functions}\label{still-more-on-functions}}
+
+Before you can consider yourself a knowledgeable R user, you have to
+know about
+
+\begin{itemize}
+\tightlist
+\item
+  named arguments,
+\item
+  default values for arguments,
+\item
+  missing arguments,
+\item
+  \texttt{...} (the bit of R syntax that enables variable number of
+  arguments)
+\end{itemize}
+
+\hypertarget{named-arguments}{%
+\subsection{Named Arguments}\label{named-arguments}}
+
+Like in C and C++ every function argument in R has a name. How else
+would you refer to it inside the function? Unlike in C and C++ the names
+of R function arguments can be used outside the function when invoking
+the function. Here's an example.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, y) x}\SpecialCharTok{\^{}}\NormalTok{y}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 9
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\AttributeTok{x =} \DecValTok{2}\NormalTok{, }\AttributeTok{y =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\AttributeTok{y =} \DecValTok{3}\NormalTok{, }\AttributeTok{x =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8
+\end{verbatim}
+
+Again, never mind that we don't need a function to do exponentiation
+because we already have the caret operator to do it. This is just a toy
+function that unlike our earlier \texttt{fred} is not a symmetric
+function of its arguments.
+
+When we don't use names and reverse the order of the arguments, the
+value of the function changes. When we do use names, the order doesn't
+matter. The names tell R which argument is which, and the order is
+ignored. This means users don't have to remember the order so long as
+they remember (or look up in the documentation) the names.
+
+R has a feature called \emph{partial matching} of argument names (done
+by the R function \texttt{pmatch}). Users don't have to specify the
+whole argument name, just enough to uniquely specify the argument.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(xerxes, yolanda) xerxes}\SpecialCharTok{\^{}}\NormalTok{yolanda}
+\FunctionTok{fred}\NormalTok{(}\AttributeTok{y =} \DecValTok{3}\NormalTok{, }\AttributeTok{x =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8
+\end{verbatim}
+
+\hypertarget{default-values-for-arguments}{%
+\subsection{Default Values for
+Arguments}\label{default-values-for-arguments}}
+
+In an R function arguments can be given \emph{default} values. If the
+user omits the argument, then the default is used.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{xerxes =} \DecValTok{4}\NormalTok{, }\AttributeTok{yolanda =} \DecValTok{5}\NormalTok{) xerxes}\SpecialCharTok{\^{}}\NormalTok{yolanda}
+\FunctionTok{fred}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1024
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 32
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\AttributeTok{yola =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 64
+\end{verbatim}
+
+Default values for arguments can be complicated expressions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, }\AttributeTok{fun1 =}\NormalTok{ mean, }\AttributeTok{fun2 =} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{mean}\NormalTok{(x}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))}
+    \FunctionTok{fun2}\NormalTok{(x }\SpecialCharTok{{-}} \FunctionTok{fun1}\NormalTok{(x))}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8.25
+\end{verbatim}
+
+The above definition is so confusing that I had trouble reading it a
+week after I wrote it. The first line of the function definition is the
+signature (what the arguments are) and the second line is the body. This
+function calculates \texttt{fun2(x\ -\ fun1(x))}.
+
+By default \texttt{fred(x)} calculates the variance of the empirical
+distribution for data \texttt{x} (dividing by \(n\) instead of
+\(n - 1\)). But by using the optional arguments we can calculate the
+median absolute deviation from the median
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, median, }\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{median}\NormalTok{(}\FunctionTok{abs}\NormalTok{(x)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.5
+\end{verbatim}
+
+Default values for arguments can also depend on other arguments. My
+first attempt at writing the function above was
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, }\AttributeTok{mu =} \FunctionTok{mean}\NormalTok{(x), }\AttributeTok{fun =} \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{mean}\NormalTok{(x}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))}
+    \FunctionTok{fun}\NormalTok{(x }\SpecialCharTok{{-}}\NormalTok{ mu)}
+\FunctionTok{fred}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 8.25
+\end{verbatim}
+
+This shows that the default value for the second argument (\texttt{mu})
+can depend on the first argument (\texttt{x}). The third argument does
+not depend on the first argument because in
+\texttt{function(x)\ mean(x\^{}2))} the name \texttt{x} is the argument
+of the anonymous function this expression creates. Unfortunately, this
+makes a bad example because this version of the function is harder to
+use, so we wouldn't actually write it this way.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fred}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\FunctionTok{median}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{median}\NormalTok{(}\FunctionTok{abs}\NormalTok{(x)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2.5
+\end{verbatim}
+
+For what seems to be the ultimate in R default values trickery, let us
+look at the R function \texttt{svd}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{svd}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function (x, nu = min(n, p), nv = min(n, p), LINPACK = FALSE) 
+## {
+##     if (!missing(LINPACK)) 
+##         stop("the LINPACK argument has been defunct since R 3.1.0")
+##     x <- as.matrix(x)
+##     if (any(!is.finite(x))) 
+##         stop("infinite or missing values in 'x'")
+##     dx <- dim(x)
+##     n <- dx[1L]
+##     p <- dx[2L]
+##     if (!n || !p) 
+##         stop("a dimension is zero")
+##     La.res <- La.svd(x, nu, nv)
+##     res <- list(d = La.res$d)
+##     if (nu) 
+##         res$u <- La.res$u
+##     if (nv) {
+##         if (is.complex(x)) 
+##             res$v <- Conj(t(La.res$vt))
+##         else res$v <- t(La.res$vt)
+##     }
+##     res
+## }
+## <bytecode: 0x00000000207350b0>
+## <environment: namespace:base>
+\end{verbatim}
+
+The defaults for arguments \texttt{nu} and \texttt{nv} depend on
+\texttt{n} and \texttt{p} which don't exist when the function is
+invoked. They aren't created until lines 5 and 6 of the function body.
+But this works because R does \emph{lazy evaluation} of function
+arguments. They are not evaluated until they are used, and \texttt{nu}
+and \texttt{nv} are not used until line 9 of the function body, which is
+after \texttt{n} and \texttt{p} are initialized. All of this is
+explained, more or less, in the documentation (\texttt{?svd}).
+
+\hypertarget{missing-arguments}{%
+\subsection{Missing Arguments}\label{missing-arguments}}
+
+Arguments can be missing whether or not there is a default value. But if
+so, the function must either never try to use them or define them
+itself. And why would it want to do either of these? That would be like
+not having the argument at all.
+
+But the R function \texttt{missing} allows us to do different things in
+the function depending on whether the argument is missing or not. Here
+is an example
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sample}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function (x, size, replace = FALSE, prob = NULL) 
+## {
+##     if (length(x) == 1L && is.numeric(x) && is.finite(x) && x >= 
+##         1) {
+##         if (missing(size)) 
+##             size <- x
+##         sample.int(x, size, replace, prob)
+##     }
+##     else {
+##         if (missing(size)) 
+##             size <- length(x)
+##         x[sample.int(length(x), size, replace, prob)]
+##     }
+## }
+## <bytecode: 0x00000000208957a0>
+## <environment: namespace:base>
+\end{verbatim}
+
+It is clear that we have to use \texttt{missing} rather than a default
+argument in order to do different things in case the first argument has
+length one or not.
+
+Unfortunately, this is a horrible example of really bad programming. R
+does this to be backwards compatible with S, and S did it in an
+extremely misguided attempt to be helpful. But this is the kind of help
+users don't need. It is very surprising. Only the most expert of users
+can remember this weirdness, and they don't always remember it. Better
+the original programmer of \texttt{sample} had never thought of this
+trick. This is an example you should not emulate!
+
+There are many examples in the R code base where \texttt{missing} is
+used well. But they are complicated, and we don't want to explain them
+now.
+
+\hypertarget{section}{%
+\subsection{\ldots{}}\label{section}}
+
+The \texttt{...} syntax allows R functions to have an arbitrary number
+of arguments. For example,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{args}\NormalTok{(list)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## function (...) 
+## NULL
+\end{verbatim}
+
+The \texttt{...} matches every argument. This shows how you can capture
+the \texttt{...} arguments if one wants to operate on them in a function
+you are writing
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{alice }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(...) \{}
+\NormalTok{    args }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(...)}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.null}\NormalTok{(args}\SpecialCharTok{$}\NormalTok{fred)) args}\SpecialCharTok{$}\NormalTok{fred }\OtherTok{\textless{}{-}} \StringTok{"J. Fred Muggs"}
+\NormalTok{    args}
+\NormalTok{\}}
+\FunctionTok{alice}\NormalTok{(}\AttributeTok{x =} \StringTok{"foo"}\NormalTok{, }\AttributeTok{y =} \StringTok{"bar"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $x
+## [1] "foo"
+## 
+## $y
+## [1] "bar"
+## 
+## $fred
+## [1] "J. Fred Muggs"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{alice}\NormalTok{(}\AttributeTok{fred =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $fred
+## [1] 10
+\end{verbatim}
+
+This is the design pattern you use when you want to set a \texttt{...}
+argument if the user has not set it, and otherwise want to leave it the
+way the user set it. We also see that the R idiom for testing whether a
+list does not have a named element is \texttt{is.null(args\$fred)}.
+
+Whether partial matching is used on arguments that are not \texttt{...}
+arguments depends on where the \texttt{...} is: named arguments that
+come before \texttt{...} are partially matched, and those that come
+after \texttt{...} are not partially matched. This is so hard to
+remember that many help pages, for example \texttt{optimize}, explicitly
+say
+
+\begin{quote}
+Note that arguments after \texttt{...} must be matched exactly.
+\end{quote}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(..., }\AttributeTok{herman =} \StringTok{"default"}\NormalTok{)}
+    \FunctionTok{list}\NormalTok{(}\AttributeTok{dots =} \FunctionTok{list}\NormalTok{(...), }\AttributeTok{herman =}\NormalTok{ herman)}
+\FunctionTok{fred}\NormalTok{(}\AttributeTok{g =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\AttributeTok{h =} \FunctionTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{, }\StringTok{"orange"}\NormalTok{, }\StringTok{"yellow"}\NormalTok{, }\StringTok{"blue"}\NormalTok{,}
+    \StringTok{"green"}\NormalTok{, }\StringTok{"indigo"}\NormalTok{, }\StringTok{"violet"}\NormalTok{), }\AttributeTok{i =} \ControlFlowTok{function}\NormalTok{(x) x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $dots
+## $dots$g
+##  [1]  1  2  3  4  5  6  7  8  9 10
+## 
+## $dots$h
+## [1] "red"    "orange" "yellow" "blue"   "green"  "indigo" "violet"
+## 
+## $dots$i
+## function(x) x
+## 
+## 
+## $herman
+## [1] "default"
+\end{verbatim}
+
+Argument \texttt{herman} is not matched by argument \texttt{h} because
+\texttt{herman} comes after \texttt{...} and so must be exactly matched.
+
+But
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fred }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{herman =} \StringTok{"default"}\NormalTok{, ...)}
+    \FunctionTok{list}\NormalTok{(}\AttributeTok{dots =} \FunctionTok{list}\NormalTok{(...), }\AttributeTok{herman =}\NormalTok{ herman)}
+\FunctionTok{fred}\NormalTok{(}\AttributeTok{g =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\AttributeTok{h =} \FunctionTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{, }\StringTok{"orange"}\NormalTok{, }\StringTok{"yellow"}\NormalTok{, }\StringTok{"blue"}\NormalTok{,}
+    \StringTok{"green"}\NormalTok{, }\StringTok{"indigo"}\NormalTok{, }\StringTok{"violet"}\NormalTok{), }\AttributeTok{i =} \ControlFlowTok{function}\NormalTok{(x) x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $dots
+## $dots$g
+##  [1]  1  2  3  4  5  6  7  8  9 10
+## 
+## $dots$i
+## function(x) x
+## 
+## 
+## $herman
+## [1] "red"    "orange" "yellow" "blue"   "green"  "indigo" "violet"
+\end{verbatim}
+
+Now argument \texttt{herman} is matched by argument \texttt{h} because
+\texttt{herman} comes before \texttt{...} and so may be partially
+matched.
+
+There are probably many uses of \texttt{...} that I have never thought
+of. The two main uses are
+
+\begin{itemize}
+\tightlist
+\item
+  to allow the function to work on a variable number of arguments (like
+  the R function \texttt{list} and many other R functions), and
+\item
+  to pass arguments to another function (like the R function
+  \texttt{optimize} and many other R functions).
+\end{itemize}
+
+From \texttt{?optimize}, in the ``Usage'' section
+
+\begin{verbatim}
+     optimize(f, interval, ..., lower = min(interval),
+              upper = max(interval), maximum = FALSE,
+              tol = .Machine$double.eps^0.25)
+     optimise(f, interval, ..., lower = min(interval),
+              upper = max(interval), maximum = FALSE,
+              tol = .Machine$double.eps^0.25)
+\end{verbatim}
+
+(R allows either American or British spelling for this function name)
+and later on in the ``Arguments'' section
+
+\begin{verbatim}
+     ...: additional named or unnamed arguments to be
+              passed to ‘f’.
+\end{verbatim}
+
+\hypertarget{a-long-example-maximum-likelihood-estimation}{%
+\subsection{A Long Example (Maximum Likelihood
+Estimation)}\label{a-long-example-maximum-likelihood-estimation}}
+
+\hypertarget{make-up-data}{%
+\subsubsection{Make Up Data}\label{make-up-data}}
+
+Suppose we want to do maximum likelihood estimation for the gamma
+distribution with unknown shape parameter and known scale parameter,
+which we take to be the R default value.
+
+First we make up data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{alpha }\OtherTok{\textless{}{-}}\NormalTok{ pi}
+\NormalTok{n }\OtherTok{\textless{}{-}} \DecValTok{30}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{42}\NormalTok{)}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rgamma}\NormalTok{(n, }\AttributeTok{shape =}\NormalTok{ alpha)}
+\end{Highlighting}
+\end{Shaded}
+
+Here we first make up the true unknown parameter value \texttt{alpha}
+and sample size \texttt{n}. Of course we actually know \texttt{alpha}
+but the whole point of the example is to pretend we don't know
+\texttt{alpha} and have to estimate it from the data \texttt{x} (which
+is a random sample from the distribution with this parameter value).
+
+The reason for the \texttt{set.seed} command is so that we get the same
+\texttt{x} every time this document is created. If we deleted that
+statement, we would get a different \texttt{x} every time.
+
+\hypertarget{using-dot-dot-dot}{%
+\subsubsection{Using Dot-Dot-Dot}\label{using-dot-dot-dot}}
+
+First define the log likelihood function. The argument we want to
+optimize over (the parameter) has to come first if it is to be optimized
+by R function \texttt{optimize} (or R function \texttt{optim} or R
+runction \texttt{nlm} if this is a vector argument rather than a scalar
+argument).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{logl }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(alpha, x)}
+    \FunctionTok{sum}\NormalTok{(}\FunctionTok{dgamma}\NormalTok{(x, }\AttributeTok{shape =}\NormalTok{ alpha, }\AttributeTok{log =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+R function \texttt{optimize} needs an interval in which it is to seek
+the optimum. Here we choose the interval mean plus or minus 3 standard
+deviations, which should contain the true unknown mean with high
+probability (and for the gamma distribution with default scale parameter
+\texttt{alpha} is the mean). Except, when the lower endpoint of this
+interval is negative that is outside the range of the variable, that
+won't work. So make the lower endpoint a positive number much smaller
+than the mean in this case.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{interval }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(x) }\SpecialCharTok{+} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) }\SpecialCharTok{*} \DecValTok{3} \SpecialCharTok{*} \FunctionTok{sd}\NormalTok{(x)}
+\NormalTok{interval }\OtherTok{\textless{}{-}} \FunctionTok{pmax}\NormalTok{(}\FunctionTok{mean}\NormalTok{(x) }\SpecialCharTok{/} \FloatTok{1e3}\NormalTok{, interval)}
+\NormalTok{interval}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.00307587 8.44529568
+\end{verbatim}
+
+So now we are ready to do the maximization.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{oout }\OtherTok{\textless{}{-}} \FunctionTok{optimize}\NormalTok{(logl, }\AttributeTok{maximum =} \ConstantTok{TRUE}\NormalTok{, interval, }\AttributeTok{x =}\NormalTok{ x)}
+\NormalTok{oout}\SpecialCharTok{$}\NormalTok{maximum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.04927
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{mean}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.07587
+\end{verbatim}
+
+The point of showing both the maximum likelihood estimator (MLE) and the
+sample mean, both of which are consistent and asymptotically normal
+estimators of the unknown parameter \(\alpha\), is just to show that
+they are different.
+
+A plot of the log likelihood done by the following code
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mylogl }\OtherTok{\textless{}{-}} \FunctionTok{Vectorize}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(alpha) }\FunctionTok{logl}\NormalTok{(alpha, x))}
+\FunctionTok{curve}\NormalTok{(mylogl, }\AttributeTok{from =}\NormalTok{ interval[}\DecValTok{1}\NormalTok{], }\AttributeTok{to =}\NormalTok{ interval[}\DecValTok{2}\NormalTok{],}
+    \AttributeTok{xlab=}\FunctionTok{expression}\NormalTok{(alpha), }\AttributeTok{ylab=}\FunctionTok{expression}\NormalTok{(}\FunctionTok{logl}\NormalTok{(alpha)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+
+{\centering \includegraphics{1_basic_files/figure-latex/fig2-1} 
+
+}
+
+\caption{Graph of Log Likelihood}\label{fig:fig2}
+\end{figure}
+
+shows that the optimization seems to have worked. The tricks needed to
+draw this curve we do not want to explain right now.
+
+All of that is interesting, and we will go over it in detail at some
+point in the course. But in this section, the only point that is
+interesting is how we are using the \texttt{...} argument to
+\texttt{optimize}. The R function \texttt{optimize} does not have an
+argument named \texttt{x} or even an argument that comes before
+\texttt{...} in the argument list that can be partially matched to
+\texttt{x} (from the documentation quoted above only the arguments
+\texttt{f} and \texttt{interval} come before \texttt{...} and neither
+begins with \texttt{x}). Thus \texttt{optimize} considers \texttt{x} a
+\texttt{...} argument and passes it to \texttt{f} when \texttt{f} is
+called (many times) from inside \texttt{optimize} to evaluate the
+function being maximized (that is \texttt{logl} which is called
+\texttt{f} inside \texttt{optimize}). When \texttt{optimize} calls
+\texttt{f} it does it by defining an anonymous function
+
+\begin{verbatim}
+function(arg) f(arg, ...)
+\end{verbatim}
+
+(typing \texttt{optimize} at the R command line shows you its
+definition) and since we know that in this case \texttt{...} matches
+only the argument \texttt{x\ =\ x}, this is the same as defining the
+objective function to be
+
+\begin{verbatim}
+function(arg) f(arg, x = x)
+\end{verbatim}
+
+or, since \texttt{f} is another name for \texttt{logl}, as
+
+\begin{verbatim}
+function(arg) logl(arg, x = x)
+\end{verbatim}
+
+Note that here the R function \texttt{optimize} is using the trick of
+``partially evaluated functions'' explained in
+\protect\hyperlink{partially-evaluated-functions}{Section 6.3} above. It
+takes the given function, which it calls \texttt{f} and which can have
+many arguments, and converts it to an anonymous function of one
+argument. It passes this to a C function named \texttt{do\_fmin} to
+actually do the optimization, so we cannot see how that works without
+reading the C source code for R, which we won't bother with. The point
+is that this C function only needs to know how maximize R functions of
+one variable. It doesn't need to know about any other variables.
+
+\hypertarget{alternative-solution-using-global-variables}{%
+\subsubsection{Alternative Solution (Using Global
+Variables)}\label{alternative-solution-using-global-variables}}
+
+The preceding section shows the approved (in some circles) way to do
+that problem.
+
+But here is another way (that some people deem evil and stupid). Just
+define \texttt{logl} as a function of one variable.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{logl }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(alpha)}
+    \FunctionTok{sum}\NormalTok{(}\FunctionTok{dgamma}\NormalTok{(x, }\AttributeTok{shape =}\NormalTok{ alpha, }\AttributeTok{log =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+and then do the optimization as before except now we omit the
+\texttt{x\ =\ x}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{oout }\OtherTok{\textless{}{-}} \FunctionTok{optimize}\NormalTok{(logl, }\AttributeTok{maximum =} \ConstantTok{TRUE}\NormalTok{, interval)}
+\NormalTok{oout}\SpecialCharTok{$}\NormalTok{maximum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.04927
+\end{verbatim}
+
+How does that work? How does \texttt{logl} when called from within
+\texttt{optimize} find out what \texttt{x} is?
+
+The short answer is that it looks it up in the R global environment
+(which is where we defined it in the first place). So it works. And we
+didn't need \texttt{x\ =\ x}.
+
+And now for the caution about this method.
+\href{http://wiki.c2.com/?GlobalVariablesAreBad}{Global variables are
+evil}. (An interesting bit of computing history: Wiki Wiki Web was the
+first Wiki that Wikipedia and zillions of other wikis copy
+(\href{https://en.wikipedia.org/w/index.php?title=Wiki\&oldid=752613214}{Wikipedia
+entry Wiki})).
+
+In serious work, global variables should never be used. Especially, they
+should never be used in code that you make for others to use. What if
+you call the data \texttt{x} inside your function and the user calls the
+data \texttt{y} outside your function. That won't work. But if the
+\texttt{...} trick is used, then the user can still call the data
+\texttt{y} and make the argument to match \texttt{x} via the
+\texttt{...} mechanism \texttt{x\ =\ y}, that is, the argument named
+\texttt{x} (in the function you wrote) is the data named \texttt{y}
+(outside the function) by the user.
+
+So put \texttt{logl} back the way it was originally
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{logl }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(alpha, x)}
+    \FunctionTok{sum}\NormalTok{(}\FunctionTok{dgamma}\NormalTok{(x, }\AttributeTok{shape =}\NormalTok{ alpha, }\AttributeTok{log =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+and now call the data \texttt{y}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ x}
+\FunctionTok{rm}\NormalTok{(x) }\CommentTok{\# now x is gone}
+\end{Highlighting}
+\end{Shaded}
+
+and
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{oout }\OtherTok{\textless{}{-}} \FunctionTok{optimize}\NormalTok{(logl, }\AttributeTok{maximum =} \ConstantTok{TRUE}\NormalTok{, interval, }\AttributeTok{x =}\NormalTok{ y)}
+\NormalTok{oout}\SpecialCharTok{$}\NormalTok{maximum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.04927
+\end{verbatim}
+
+still works.
+
+In short, \emph{don't use global variables}. Except. The Perl slogan is
+TIMTOWTDI (there is more than one way to do it), pronounced tim-toady
+(\href{https://en.wikipedia.org/w/index.php?title=There\%27s_more_than_one_way_to_do_it\&oldid=754047450}{Wikipedia
+entry}). This could also be an R slogan. There is no one true way to use
+R. There are many ways of R. As we said above, the way of this problem
+that uses global variables is the simplest, easiest, and most R-ish for
+one-off uses when the programmer and the user are one.
+
+You only need to avoid global variables to be politically correct in the
+computer science sense (as the Wiki Wiki Web page cited above explains)
+or to have your code usable by others (including your future self six
+months from now).
+
+\hypertarget{factory}{%
+\subsubsection{Having Your Cake and Eating It Too
+(Closures)}\label{factory}}
+
+There is a way that combines the virtues of both of the preceding ways.
+No global variables, and no \texttt{...} variables either. But it is
+somewhat mysterious.
+
+It uses the fact that R functions are closures (mentioned in
+\protect\hyperlink{functional-programming}{Section 4.1 above}). They
+remember local variables in the environment in which they were created.
+So we can put \texttt{x} in there.
+
+This is an example of what Hadley Wickham calls the \emph{function
+factory} design pattern, as mentioned in
+\protect\hyperlink{functions-returning-functions-as-values}{Section 4.6
+above}.
+
+Here's how that works. For ease of explanation, we do it in two steps.
+Note that this is also very similar to our toy example in
+\protect\hyperlink{functions-whose-values-are-functions}{Section 6.2
+above} except that this is a non-toy function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{make.logl }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) }\ControlFlowTok{function}\NormalTok{(alpha)}
+    \FunctionTok{sum}\NormalTok{(}\FunctionTok{dgamma}\NormalTok{(x, }\AttributeTok{shape =}\NormalTok{ alpha, }\AttributeTok{log =} \ConstantTok{TRUE}\NormalTok{))}
+
+\NormalTok{logl }\OtherTok{\textless{}{-}} \FunctionTok{make.logl}\NormalTok{(y)}
+\end{Highlighting}
+\end{Shaded}
+
+and then do the optimization as before when we could omit the
+\texttt{x\ =\ y}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{oout }\OtherTok{\textless{}{-}} \FunctionTok{optimize}\NormalTok{(logl, }\AttributeTok{maximum =} \ConstantTok{TRUE}\NormalTok{, interval)}
+\NormalTok{oout}\SpecialCharTok{$}\NormalTok{maximum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.04927
+\end{verbatim}
+
+It works the same. But how does it work?
+
+\begin{itemize}
+\item
+  R function \texttt{make.logl} is a higher order function. It is a
+  function that returns a function, and that function has the same
+  definition as the R function \texttt{logl} in the other examples.
+\item
+  The returned function, like any R function, ``knows'' local variables
+  in the environment in which it was defined, which is the execution
+  environment of R function \texttt{make.logl} when it is invoked.
+\item
+  The only local variable there is named \texttt{x}.
+\item
+  When R function \texttt{make.logl} is invoked, we give it the value
+  named \texttt{y} in the R global environment.
+\item
+  Inside \texttt{make.logl} and \emph{inside the function that
+  \texttt{make.logl} returns} this value has the name \texttt{x}.
+\item
+  So this R function \texttt{logl} works the same way all the others
+  did.
+\end{itemize}
+
+Note that we are really using the power of functional programming here.
+
+\begin{itemize}
+\item
+  R function \texttt{optimize} is a higher order function because its
+  first argument is a function.
+\item
+  R function \texttt{make.logl} is a higher order function because it
+  returns a function.
+\item
+  So we are using a higher order function to create the function that we
+  pass as an argument to another higher order function.
+\end{itemize}
+
+\hypertarget{the-same-except-even-more-mysterious}{%
+\subsubsection{The Same Except Even More
+Mysterious}\label{the-same-except-even-more-mysterious}}
+
+As always, we can use an anonymous function instead of giving it the
+name \texttt{make.logl}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{logl }\OtherTok{\textless{}{-}}\NormalTok{ (}\ControlFlowTok{function}\NormalTok{(x) }\ControlFlowTok{function}\NormalTok{(alpha)}
+    \FunctionTok{sum}\NormalTok{(}\FunctionTok{dgamma}\NormalTok{(x, }\AttributeTok{shape =}\NormalTok{ alpha, }\AttributeTok{log =} \ConstantTok{TRUE}\NormalTok{)))(y)}
+\end{Highlighting}
+\end{Shaded}
+
+and then do the optimization as before
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{oout }\OtherTok{\textless{}{-}} \FunctionTok{optimize}\NormalTok{(logl, }\AttributeTok{maximum =} \ConstantTok{TRUE}\NormalTok{, interval)}
+\NormalTok{oout}\SpecialCharTok{$}\NormalTok{maximum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.04927
+\end{verbatim}
+
+The reason for the parentheses around the anonymous function definition
+
+\begin{verbatim}
+function(x) function(alpha)
+    sum(dgamma(x, shape = alpha, log = TRUE))
+\end{verbatim}
+
+is to make the whole definition something to which R can apply the other
+use of parentheses: function invocation, in this case \texttt{(y)}.
+
+But this is uncomprehensible to almost all R users. Until you get quite
+used to this design pattern, it is perhaps best to do it as in the
+preceding section.
+
+\hypertarget{where-is-x}{%
+\subsubsection{Where is X?}\label{where-is-x}}
+
+But where does R put \texttt{x}? In the environment of the function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{environment}\NormalTok{(logl)}\SpecialCharTok{$}\NormalTok{x}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 5.3396900 1.8035110 2.7199928 1.1513247 2.4719243 1.6810323 6.9406407
+##  [8] 2.5406468 1.1712249 0.8665140 5.2110715 4.4706090 4.2691549 3.4834492
+## [15] 4.4443983 1.4835538 2.1667205 6.7240825 6.1847368 3.2562157 3.1559991
+## [22] 2.0398708 0.5531137 1.3241273 3.4336934 3.9113621 4.5918039 1.7446038
+## [29] 1.6205851 1.5204572
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{identical}\NormalTok{(}\FunctionTok{environment}\NormalTok{(logl)}\SpecialCharTok{$}\NormalTok{x, y)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+The local variable \texttt{x} is stored in the function itself.
+
+\hypertarget{stop-me-before-i-crash-and-burn}{%
+\section{Stop Me before I Crash and
+Burn}\label{stop-me-before-i-crash-and-burn}}
+
+There is a very old computer slogan GIGO (garbage in, garbage out)
+(\href{https://en.wikipedia.org/w/index.php?title=Garbage_in,_garbage_out\&oldid=740536906}{Wikipedia
+entry}) that goes back to the 1950's. There is a more modern meaning
+\emph{garbage in, gospel out} that refers to people believing anything
+that comes from a computer no matter how ridiculous (the internet is
+never wrong).
+
+Another R slogan could be \emph{garbage in, error messages out} (GIEMO)
+R functions should not allow users to shoot themselves in the foot. They
+should not be \emph{footguns}. This is unlike some languages we know
+
+\begin{quote}
+Within C++, there is a much smaller and cleaner language struggling to
+get out.
+
+--- Bjarne Stroustrup
+
+C makes it easy to shoot yourself in the foot; C++ makes it harder, but
+when you do it blows your whole leg off.
+
+--- Bjarne Stroustrup
+\end{quote}
+
+Since so much of R is functions, if none of the functions are footguns,
+then the whole language is not a footgun (almost). Of course, some R
+functions are footguns, such as the notorious \texttt{sample} mentioned
+above (\protect\hyperlink{missing-arguments}{Section 7.3}) and the
+notorious \texttt{{[}} function also mentioned above
+(\protect\hyperlink{indexing}{Section 5.4}) but without mentioning its
+footgun behavior, which involves matrices (and will be explained in the
+\href{http://www.stat.umn.edu/geyer/3701/notes/array.html\#the-square-brackets-function-is-a-footgun}{next
+handout}). But the vast majority of R functions are not footguns because
+they follow GIEMO. The first job of a good R function that is usable by
+humans who make mistakes is to check that no errors are possible. In
+order to not be a footgun our log likelihood function in
+\protect\hyperlink{a-long-example-maximum-likelihood-estimation}{Section
+7.4.1} above should have been something like
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{logl }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(alpha, x) \{}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(alpha))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(alpha))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{length}\NormalTok{(alpha) }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+    \FunctionTok{stopifnot}\NormalTok{(alpha }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{)}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(x))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(x))}
+    \FunctionTok{stopifnot}\NormalTok{(x }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{)}
+    \FunctionTok{sum}\NormalTok{(}\FunctionTok{dgamma}\NormalTok{(x, }\AttributeTok{shape =}\NormalTok{ alpha, }\AttributeTok{log =} \ConstantTok{TRUE}\NormalTok{))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Of course, since \texttt{dgamma} is not a footgun, you can rely on it to
+catch some of these errors. But you should not. You should catch them
+yourself, for the following reasons.
+
+\begin{itemize}
+\tightlist
+\item
+  Just from looking at our code, we can tell our function is not a
+  footgun.
+\item
+  If we look at the R code for \texttt{dgamma}, we see that it hardly
+  checks anything and instead leaves these checks for the C function it
+  calls to do the work.
+\item
+  Reading the C source code is hard.
+\item
+  Actually, a lot more than hard. We just don't want to go there.
+\end{itemize}
+
+Let's check that it still works.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{oout }\OtherTok{\textless{}{-}} \FunctionTok{optimize}\NormalTok{(logl, }\AttributeTok{maximum =} \ConstantTok{TRUE}\NormalTok{, interval, }\AttributeTok{x =}\NormalTok{ y)}
+\NormalTok{oout}\SpecialCharTok{$}\NormalTok{maximum}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 3.04927
+\end{verbatim}
+
+\hypertarget{control-flow-constructs}{%
+\section{Control-Flow Constructs}\label{control-flow-constructs}}
+
+\hypertarget{if-then-else}{%
+\subsection{If-Then-Else}\label{if-then-else}}
+
+R has loops and if-then-else, but they behave quite differently from C
+and C++.
+
+For one thing, like everything else in the R language, they are
+expressions. We have already seen this in
+\protect\hyperlink{reduce}{Section 5.3.2} above where we used
+\texttt{if\ (x\ \textgreater{}\ y)\ x\ else\ y} as part of a larger
+expression. You can't do that in C or C++.
+
+\hypertarget{for}{%
+\subsection{For}\label{for}}
+
+For another thing \texttt{for} loops in R iterate over the elements of a
+vector or list. They do not do arithmetic on indices. In this they work
+more like so-called for-each loops in Java or C++ (more on this below).
+
+Thus, while the C or C++ or Java
+
+\begin{verbatim}
+for (int i = 0; i < n; i++) {
+    // do case i
+}
+\end{verbatim}
+
+does have an R equivalent
+
+\begin{verbatim}
+for (i in 1:n) {
+    # do case i
+}
+\end{verbatim}
+
+the R is different in that it does not do any arithmetic on \texttt{i}
+and \texttt{1:n} is just a vector of integers like any other place
+\texttt{1:n} is used in R.
+
+R also has the following. Suppose \texttt{todo} is a list of some
+sort(s) of R objects, then
+
+\begin{verbatim}
+for (o in todo) {
+    # process object o
+}
+\end{verbatim}
+
+iterates over elements of this list. This is what we mean by the
+\texttt{for} control-flow construct in R being more like for-each in
+Java or C++ (and like nothing in C).
+
+Beginners who have been brainwashed in languages like C or C++ are
+tempted to treat \texttt{for} in R like \texttt{for} in C or C++,
+writing the last example with indices
+
+\begin{verbatim}
+for (i in 1:length(todo)) {
+    o <- todo[[i]]
+    # process object o
+}
+\end{verbatim}
+
+This works, of course, but it is clumsy and inelegant. Don't use indices
+unless you have to, for example, when processing several vectors of the
+same length in parallel.
+
+Just for our own amusement (readers can skip to the end of this
+subsection and not miss anything about R) we look at the Java and C++
+for-each code. In Java if \texttt{todo} is an object of a class that
+implements the \texttt{Iterable\textless{}Foo\textgreater{}} interface,
+then
+
+\begin{verbatim}
+for (Foo o : todo) {
+    // process object o
+}
+\end{verbatim}
+
+does the same thing as the R for loop above. The C++ analog looks just
+the same except that the description of what \texttt{todo} has to be in
+order for this to work is so complicated that I cannot figure out any
+way to condense it here.
+
+\hypertarget{repeat}{%
+\subsection{Repeat}\label{repeat}}
+
+Because R does not have the C and C++ kind of \texttt{for}, the R
+\texttt{for} cannot be used to write an infinite loop (that one leaves
+by using the \texttt{break} statement). The C or C++ idiom is
+
+\begin{verbatim}
+for (;;) {
+    // each time through the loop decide if we are ready
+    // to leave using a break statement
+}
+\end{verbatim}
+
+The R equivalent is
+
+\begin{verbatim}
+repeat {
+    # each time through the loop decide if we are ready
+    # to leave using a break expression
+}
+\end{verbatim}
+
+\hypertarget{comment}{%
+\subsection{Comment}\label{comment}}
+
+\begin{quote}
+Tradition among experienced S programmers has always been that loops
+(typically \texttt{for} loops) are intrinsically inefficient: expressing
+computations without loops has provided a measure of entry into the
+inner circle of S programming.
+
+John Chambers (\emph{Programming With Data,} p.~173) quoted by the R
+function \texttt{fortune} in the CRAN package \texttt{fortunes}\}
+\end{quote}
+
+Sometimes you need loops. Often you don't. We didn't feel the need for
+any actual examples in this document. We will avoid them whenever we can
+in this course. Knowledgeable R users know that loops should be avoided
+when possible, whether or not they have the knowledge to actually avoid
+loops in any particular case.
+
+\hypertarget{an-extended-example-winsorized-means}{%
+\section{An Extended Example (Winsorized
+Means)}\label{an-extended-example-winsorized-means}}
+
+\hypertarget{the-problem}{%
+\subsection{The Problem}\label{the-problem}}
+
+Write a function that does Winsorized means. This is defined as replace
+\(x\) of the data from each end with the closest data value that is not
+removed and then average.
+
+\hypertarget{the-design}{%
+\subsection{The Design}\label{the-design}}
+
+That is not enough of a problem statement. We need a more careful
+statement before we start coding. What values of \(x\) are allowed?
+Obviously we cannot remove more than all of the data so we must have
+\(0 < x \le 0.5\).
+
+But we can't remove all of the data either, because otherwise ``the
+closest data value that is not removed'' makes no sense. So we must have
+\(x < 0.5\).
+
+If there are an odd number of data points, then in order to keep at
+least one data point, we must have \(x < (n - 1) / (2 n)\). If there are
+an even number of data points, then in order to keep at least one data
+point, in which case we must actually keep two because of symmetry, we
+must have \(x < (n - 2) / (2 n)\).
+
+What if there are zero data points? How should we define the mean of
+zero data points? What does R do in this case?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{mean}\NormalTok{(}\FunctionTok{double}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+Presumably we should do the same thing for this case.
+
+What if there are missing data or ``not a number'' data?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{mean}\NormalTok{(}\ConstantTok{NA}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NA
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{mean}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+Presumably we should do the same thing for these cases.
+
+Thus our function should look something like this
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{winsorizedMean }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, }\AttributeTok{winsorize =} \FloatTok{0.2}\NormalTok{) \{}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(x))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(winsorize))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{length}\NormalTok{(winsorize) }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+    \FunctionTok{stopifnot}\NormalTok{(}\DecValTok{0} \SpecialCharTok{\textless{}}\NormalTok{ winsorize }\SpecialCharTok{\&}\NormalTok{ winsorize }\SpecialCharTok{\textless{}} \FloatTok{0.5}\NormalTok{)}
+\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(x)}
+    \ControlFlowTok{if}\NormalTok{ (n }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\FunctionTok{return}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{anyNA}\NormalTok{(x)) }\FunctionTok{return}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+    \CommentTok{\# now calculate the Winsorized mean of x in the case where}
+    \CommentTok{\# we know length(x) \textgreater{} 0 and there are no NA or NaN in x}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+That takes care of the GIEMO issue.
+
+It does not agree with our previous design decision to return
+\texttt{NA} if there are \texttt{NA} in the input. This is because
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{anyNA}\NormalTok{(}\ConstantTok{NA}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{anyNA}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+does not distinguish between \texttt{NA} and \texttt{NaN}.
+
+We had never heard of the function \texttt{anyNA} before writing this
+example. We found it discussed on the help page for \texttt{is.na}.
+
+Before we can adjust the data, we need it in sorted order because \(x\)
+at each end implicitly refers to the data in sorted order (as laid out
+on the number line). There is an R function \texttt{sort} that does
+that. Looking at the help page for that, we see that there is a faster
+function \texttt{sort.int} that does partial sorting to make it even
+faster. Partial sorting seems to be just what we need here.
+\texttt{?sort} says
+
+\begin{quote}
+If \texttt{partial} is not \texttt{NULL}, it is taken to contain indices
+of elements of the result which are to be placed in their correct
+positions in the sorted array by partial sorting. For each of the result
+values in a specified position, any values smaller than that one are
+guaranteed to have a smaller index in the sorted array and any values
+which are greater are guaranteed to have a bigger index in the sorted
+array.
+\end{quote}
+
+If we do a partial sort that gets the two components that we use to
+replace other components correctly, then we can calculate the Winsorized
+mean.
+
+So what are those indices? We are supposed to trim
+\texttt{n\ *\ winsorize} from each end. But that may not be a round
+number. We need to round that down to find our how many data values to
+Winsorize at each end. And how do we round? The help page
+\texttt{?round} describes many functions that do rounding. Reading their
+descriptions tells us that \texttt{floor} rounds down.
+
+So if we define
+
+\begin{verbatim}
+k <- floor(n * winsorize)
+\end{verbatim}
+
+then the check
+
+\begin{verbatim}
+k < n / 2
+\end{verbatim}
+
+will do the job of making sure that we have at least one non-replaced
+data value. Then we want to do a partial sort getting the indices
+\texttt{k\ +\ 1} and \texttt{n\ -\ k} correct.
+
+And then what do we do? We could do the replacement, but we could also
+just do the arithmetic without doing the replacement
+
+\begin{verbatim}
+(k + 1) * (x[k + 1] + x[n - k]) + sum(x[seq(k + 2, n - k - 1)])
+\end{verbatim}
+
+divided by \texttt{n} is the Winsorized mean, except when
+\texttt{k\ +\ 2} \textgreater{} \texttt{n\ -\ k\ -\ 1}, in which case we
+should be taking the sum of an empty set of numbers (that is, zero) but
+the R function \texttt{seq} produces the sequence that goes \emph{down}
+from \texttt{k\ +\ 2} to \texttt{n\ -\ k\ -\ 1} in this case, so that
+won't work. So we have to special case this.
+
+\hypertarget{the-implementation}{%
+\subsection{The Implementation}\label{the-implementation}}
+
+This leaves us with
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{winsorizedMean }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, }\AttributeTok{winsorize =} \FloatTok{0.2}\NormalTok{) \{}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(x))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(winsorize))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{length}\NormalTok{(winsorize) }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+    \FunctionTok{stopifnot}\NormalTok{(}\DecValTok{0} \SpecialCharTok{\textless{}}\NormalTok{ winsorize }\SpecialCharTok{\&}\NormalTok{ winsorize }\SpecialCharTok{\textless{}} \FloatTok{0.5}\NormalTok{)}
+\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(x)}
+    \ControlFlowTok{if}\NormalTok{ (n }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\FunctionTok{return}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{anyNA}\NormalTok{(x)) }\FunctionTok{return}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+
+\NormalTok{    k }\OtherTok{\textless{}{-}} \FunctionTok{floor}\NormalTok{(n }\SpecialCharTok{*}\NormalTok{ winsorize)}
+    \ControlFlowTok{if}\NormalTok{ (k }\SpecialCharTok{\textgreater{}=}\NormalTok{ n }\SpecialCharTok{/} \DecValTok{2}\NormalTok{) }\FunctionTok{stop}\NormalTok{(}\StringTok{"winsorize too large"}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{ (k }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\FunctionTok{return}\NormalTok{(}\FunctionTok{mean}\NormalTok{(x))}
+\NormalTok{    x }\OtherTok{\textless{}{-}} \FunctionTok{sort.int}\NormalTok{(x, }\AttributeTok{partial =} \FunctionTok{c}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k))}
+    \ControlFlowTok{if}\NormalTok{ (k }\SpecialCharTok{+} \DecValTok{2} \SpecialCharTok{\textgreater{}=}\NormalTok{ n }\SpecialCharTok{{-}}\NormalTok{ k }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+        \FunctionTok{return}\NormalTok{(}\FunctionTok{mean}\NormalTok{(x[}\FunctionTok{c}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k)]))}
+    \ControlFlowTok{else}
+        \FunctionTok{return}\NormalTok{ ((k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ (x[k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ x[n }\SpecialCharTok{{-}}\NormalTok{ k]) }\SpecialCharTok{+}
+            \FunctionTok{sum}\NormalTok{(x[}\FunctionTok{seq}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{2}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)])) }\SpecialCharTok{/}\NormalTok{ n}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{testing}{%
+\subsection{Testing}\label{testing}}
+
+Once we have an implementation, we are about half done. Now we need to
+test it to see that it works \emph{correctly}. And if we were putting
+this in an R package we were writing, we would also have to write a good
+help page.
+
+The tests should test all the behavior, including that it gives the
+right errors under the right conditions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\StringTok{"fred"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean("fred"): is.numeric(x) is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\FunctionTok{double}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\ConstantTok{NA}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(NA): is.numeric(x) is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\FloatTok{0.6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, 0.6): 0 < winsorize & winsorize < 0.5 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\StringTok{"fred"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, "fred"): is.numeric(winsorize) is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, 1:10): length(winsorize) == 1 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, -3): 0 < winsorize & winsorize < 0.5 is not TRUE
+\end{verbatim}
+
+OK, except we did not get the result expected when the input was
+\texttt{NA}. A look at the help page for \texttt{NA} tells us that the
+trouble is that there are NA values of each atomic vector type except
+\texttt{raw} and the default type is \texttt{logical}. So try again.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\ConstantTok{NA\_real\_}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\FloatTok{1.1}\NormalTok{, }\FloatTok{2.2}\NormalTok{, }\ConstantTok{NA}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+OK.
+
+Now how do we get the ``winsorize too large'' error message? We actually
+cannot get that (I think). If \texttt{winsorize} is less than \(1/2\),
+then \texttt{k} should be less than \texttt{n\ /\ 2}.
+
+I confess that when I was writing this code, I forgot to put in checks
+that the \texttt{winsorize} argument was OK when I first wrote this
+function. Without those checks, the check about
+\texttt{k\ \textgreater{}=\ n\ /\ 2} does do something important. While
+I was writing these tests, I realized I should be checking whether both
+arguments were wrong, and went back and inserted checks for the
+\texttt{winsorize} argument. So now the check about
+\texttt{k\ \textgreater{}=\ n\ /\ 2} does nothing as far as I can see,
+but I left it in the code, because it does check a condition that we
+need to be true in order for the function to work correctly. So if our
+analysis that it can never be triggered is wrong, it is there to save
+us.
+
+Now we need to test each code path that calculates a non-error result.
+There are three of them.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# make up some data}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{20}\NormalTok{)}
+\FunctionTok{identical}\NormalTok{(}\FunctionTok{winsorizedMean}\NormalTok{(x, }\FloatTok{0.001}\NormalTok{), }\FunctionTok{mean}\NormalTok{(x))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+So the path where the Winsorized mean is just the mean seems to work.
+
+When do we have \texttt{k\ +\ 2\ \textgreater{}=\ n\ -\ k\ -\ 1}? We
+have equality when \[
+   2 k = n - 3
+\] and this means \(n\) must be odd. With our even-length data, we have
+\((n - 3) / 2 = 17 / 2 = 8.5\) and \(k\) is greater than that when
+\(k = 9\). And that should happen when \texttt{winsorize} is greater
+than \(9 / 20\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{identical}\NormalTok{(}\FunctionTok{winsorizedMean}\NormalTok{(x, }\FloatTok{0.499}\NormalTok{), }\FunctionTok{median}\NormalTok{(x))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+The reason why this test works is that in both cases the function is
+returning the average of the two middle values.
+
+Now for the last case, which does something really complicated and
+tricky. How do we test that? My answer, developed over long experience
+in programming in R and C and many other languages, is that we redo the
+calculation in the least tricky, most straightforward way possible, a
+way that is hopefully obviously correct. If we get the same answers both
+ways, we appear to be good.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w1 }\OtherTok{\textless{}{-}} \FunctionTok{winsorizedMean}\NormalTok{(x)}
+\NormalTok{sx }\OtherTok{\textless{}{-}} \FunctionTok{sort}\NormalTok{(x)}
+\NormalTok{ilow }\OtherTok{\textless{}{-}} \FunctionTok{seq\_along}\NormalTok{(x) }\SpecialCharTok{\textless{}} \FunctionTok{length}\NormalTok{(x) }\SpecialCharTok{*} \FloatTok{0.2}
+\NormalTok{ihig }\OtherTok{\textless{}{-}} \FunctionTok{seq\_along}\NormalTok{(x) }\SpecialCharTok{\textgreater{}} \FunctionTok{length}\NormalTok{(x) }\SpecialCharTok{*} \FloatTok{0.8}
+\NormalTok{x.nonrep }\OtherTok{\textless{}{-}}\NormalTok{ sx[}\SpecialCharTok{!}\NormalTok{ (ilow }\SpecialCharTok{\&}\NormalTok{ ihig)]}
+\NormalTok{sx[ilow] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(x.nonrep)}
+\NormalTok{sx[ihig] }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(x.nonrep)}
+\NormalTok{w2 }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(sx)}
+\FunctionTok{identical}\NormalTok{(w1, w2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+What happened?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w1 }\SpecialCharTok{{-}}\NormalTok{ w2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -2.174608
+\end{verbatim}
+
+It looks like our function is broken. But it may be that the test is
+wrong. So first we test the test.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sort}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -3.49290641 -2.95357980 -2.83756309 -1.34087504 -1.00310455 -0.78182847
+##  [7] -0.50945013 -0.31734752 -0.28206969 -0.11876296  0.03776714  0.16022185
+## [13]  0.30327340  0.37355389  0.58092897  0.62265967  0.62524329  0.98139727
+## [19]  1.49877604  1.78178702
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sx}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -3.49290641 -3.49290641 -3.49290641 -1.34087504 -1.00310455 -0.78182847
+##  [7] -0.50945013 -0.31734752 -0.28206969 -0.11876296  0.03776714  0.16022185
+## [13]  0.30327340  0.37355389  0.58092897  0.62265967  1.78178702  1.78178702
+## [19]  1.78178702  1.78178702
+\end{verbatim}
+
+Our ``hopefully obviously correct'' method was wrong. Here we have
+\(n * \text{winsorize} = 20 \times 0.2 = 4\), so we should replace the
+four lowest values with the fifth lowest. And we certainly did not do
+that.
+
+But first let us check that we are not making another mistake.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{floor}\NormalTok{(}\FunctionTok{length}\NormalTok{(x) }\SpecialCharTok{*} \FloatTok{0.2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+OK. At least our analysis that we should be replacing the four lowest
+and four highest is correct (despite inexactness of computer
+arithmetic).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ilow}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1]  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ihig}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [13] FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+\end{verbatim}
+
+Clearly, we wanted \texttt{\textless{}=} rather than
+\texttt{\textless{}} in our definitions of these.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ilow }\OtherTok{\textless{}{-}} \FunctionTok{seq\_along}\NormalTok{(x) }\SpecialCharTok{\textless{}=} \FunctionTok{length}\NormalTok{(x) }\SpecialCharTok{*} \FloatTok{0.2}
+\NormalTok{ihig }\OtherTok{\textless{}{-}} \FunctionTok{seq\_along}\NormalTok{(x) }\SpecialCharTok{\textgreater{}=} \FunctionTok{length}\NormalTok{(x) }\SpecialCharTok{*} \FloatTok{0.8}
+\NormalTok{ilow}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1]  TRUE  TRUE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [13] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ihig}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [13] FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+\end{verbatim}
+
+If you so the arithmetic counting on your fingers,
+\(20 \times 0.8 = 16\), so R is right, and my notion that this should do
+the Right Thing is Wrong. Try again.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ihig }\OtherTok{\textless{}{-}} \FunctionTok{rev}\NormalTok{(ilow)}
+\NormalTok{ihig}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+## [13] FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE
+\end{verbatim}
+
+So now those are right.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sx }\OtherTok{\textless{}{-}} \FunctionTok{sort}\NormalTok{(x)}
+\NormalTok{sx}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -3.49290641 -2.95357980 -2.83756309 -1.34087504 -1.00310455 -0.78182847
+##  [7] -0.50945013 -0.31734752 -0.28206969 -0.11876296  0.03776714  0.16022185
+## [13]  0.30327340  0.37355389  0.58092897  0.62265967  0.62524329  0.98139727
+## [19]  1.49877604  1.78178702
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x.nonrep }\OtherTok{\textless{}{-}}\NormalTok{ sx[}\SpecialCharTok{!}\NormalTok{ (ilow }\SpecialCharTok{\&}\NormalTok{ ihig)]}
+\NormalTok{x.nonrep}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -3.49290641 -2.95357980 -2.83756309 -1.34087504 -1.00310455 -0.78182847
+##  [7] -0.50945013 -0.31734752 -0.28206969 -0.11876296  0.03776714  0.16022185
+## [13]  0.30327340  0.37355389  0.58092897  0.62265967  0.62524329  0.98139727
+## [19]  1.49877604  1.78178702
+\end{verbatim}
+
+Oops! That was just dumb. I guess I needed a logical or rather than
+logical and or maybe just the parentheses in different places.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x.nonrep }\OtherTok{\textless{}{-}}\NormalTok{ sx[(}\SpecialCharTok{!}\NormalTok{ ilow) }\SpecialCharTok{\&}\NormalTok{ (}\SpecialCharTok{!}\NormalTok{ ihig)]}
+\NormalTok{x.nonrep}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -1.00310455 -0.78182847 -0.50945013 -0.31734752 -0.28206969 -0.11876296
+##  [7]  0.03776714  0.16022185  0.30327340  0.37355389  0.58092897  0.62265967
+\end{verbatim}
+
+OK. Now for the rest of the check.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sx[ilow] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(x.nonrep)}
+\NormalTok{sx[ihig] }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(x.nonrep)}
+\NormalTok{w2 }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(sx)}
+\FunctionTok{identical}\NormalTok{(w1, w2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+What happened?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w1 }\SpecialCharTok{{-}}\NormalTok{ w2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -2.333141
+\end{verbatim}
+
+so it is not just inexactness of computer arithmetic.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sort}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -3.49290641 -2.95357980 -2.83756309 -1.34087504 -1.00310455 -0.78182847
+##  [7] -0.50945013 -0.31734752 -0.28206969 -0.11876296  0.03776714  0.16022185
+## [13]  0.30327340  0.37355389  0.58092897  0.62265967  0.62524329  0.98139727
+## [19]  1.49877604  1.78178702
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sx}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -1.00310455 -1.00310455 -1.00310455 -1.00310455 -1.00310455 -0.78182847
+##  [7] -0.50945013 -0.31734752 -0.28206969 -0.11876296  0.03776714  0.16022185
+## [13]  0.30327340  0.37355389  0.58092897  0.62265967  0.62265967  0.62265967
+## [19]  0.62265967  0.62265967
+\end{verbatim}
+
+That sure looks like what we are supposed to average to calculate the
+Winsorized mean. So now that we think the check is right, it appears
+that our function is buggy.
+
+So now we have to debug it.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(x)}
+\NormalTok{winsorize }\OtherTok{\textless{}{-}} \FloatTok{0.2}
+\NormalTok{k }\OtherTok{\textless{}{-}} \FunctionTok{floor}\NormalTok{(n }\SpecialCharTok{*}\NormalTok{ winsorize)}
+\NormalTok{k}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 4
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{myx }\OtherTok{\textless{}{-}} \FunctionTok{sort.int}\NormalTok{(x, }\AttributeTok{partial =} \FunctionTok{c}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k))}
+\NormalTok{myx}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] -3.49290641 -2.83756309 -2.95357980 -1.34087504 -1.00310455 -0.50945013
+##  [7] -0.78182847  0.16022185 -0.11876296 -0.28206969 -0.31734752  0.03776714
+## [13]  0.30327340  0.37355389  0.58092897  0.62265967  0.62524329  0.98139727
+## [19]  1.49877604  1.78178702
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w3 }\OtherTok{\textless{}{-}}\NormalTok{ (k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ (myx[k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ x[n }\SpecialCharTok{{-}}\NormalTok{ k]) }\SpecialCharTok{+}
+            \FunctionTok{sum}\NormalTok{(myx[}\FunctionTok{seq}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{2}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)]) }\SpecialCharTok{/}\NormalTok{ n}
+\FunctionTok{identical}\NormalTok{(w1, w3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+Oh! In copying this code from the function definition, I found an error.
+A parenthesis was out of place.
+
+\hypertarget{re-implementation}{%
+\subsection{Re-Implementation}\label{re-implementation}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{winsorizedMean }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, }\AttributeTok{winsorize =} \FloatTok{0.2}\NormalTok{) \{}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(x))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{is.numeric}\NormalTok{(winsorize))}
+    \FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{length}\NormalTok{(winsorize) }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+    \FunctionTok{stopifnot}\NormalTok{(}\DecValTok{0} \SpecialCharTok{\textless{}}\NormalTok{ winsorize }\SpecialCharTok{\&}\NormalTok{ winsorize }\SpecialCharTok{\textless{}} \FloatTok{0.5}\NormalTok{)}
+\NormalTok{    n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(x)}
+    \ControlFlowTok{if}\NormalTok{ (n }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\FunctionTok{return}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{anyNA}\NormalTok{(x)) }\FunctionTok{return}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+
+\NormalTok{    k }\OtherTok{\textless{}{-}} \FunctionTok{floor}\NormalTok{(n }\SpecialCharTok{*}\NormalTok{ winsorize)}
+    \ControlFlowTok{if}\NormalTok{ (k }\SpecialCharTok{\textgreater{}=}\NormalTok{ n }\SpecialCharTok{/} \DecValTok{2}\NormalTok{) }\FunctionTok{stop}\NormalTok{(}\StringTok{"winsorize too large"}\NormalTok{)}
+    \ControlFlowTok{if}\NormalTok{ (k }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\FunctionTok{return}\NormalTok{(}\FunctionTok{mean}\NormalTok{(x))}
+\NormalTok{    x }\OtherTok{\textless{}{-}} \FunctionTok{sort.int}\NormalTok{(x, }\AttributeTok{partial =} \FunctionTok{c}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k))}
+    \ControlFlowTok{if}\NormalTok{ (k }\SpecialCharTok{+} \DecValTok{2} \SpecialCharTok{\textgreater{}=}\NormalTok{ n }\SpecialCharTok{{-}}\NormalTok{ k }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)}
+        \FunctionTok{return}\NormalTok{(}\FunctionTok{mean}\NormalTok{(x[}\FunctionTok{c}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k)]))}
+    \ControlFlowTok{else}
+        \FunctionTok{return}\NormalTok{(((k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ (x[k }\SpecialCharTok{+} \DecValTok{1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ x[n }\SpecialCharTok{{-}}\NormalTok{ k]) }\SpecialCharTok{+}
+            \FunctionTok{sum}\NormalTok{(x[}\FunctionTok{seq}\NormalTok{(k }\SpecialCharTok{+} \DecValTok{2}\NormalTok{, n }\SpecialCharTok{{-}}\NormalTok{ k }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)])) }\SpecialCharTok{/}\NormalTok{ n)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Actually, I realized I had more than one parenthesis mistake in the last
+expression. Hopefully, this works.
+
+\hypertarget{re-test}{%
+\subsection{Re-Test}\label{re-test}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w1 }\OtherTok{\textless{}{-}} \FunctionTok{winsorizedMean}\NormalTok{(x)}
+\FunctionTok{identical}\NormalTok{(w1, w2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w1 }\SpecialCharTok{{-}}\NormalTok{ w2}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -1.387779e-17
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{all.equal}\NormalTok{(w1, w2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+We should have remembered the slogan
+
+\begin{quote}
+Never test objects of type \texttt{"double"} for equality! Use the R
+function \texttt{all.equal} instead (which tests for close to equal,
+using an optional argument \texttt{tolerance} to say how close).
+\end{quote}
+
+So our function works.
+
+And we also have to do all the rest of the tests.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\StringTok{"fred"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean("fred"): is.numeric(x) is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\FunctionTok{double}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\ConstantTok{NA\_real\_}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\FloatTok{0.6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, 0.6): 0 < winsorize & winsorize < 0.5 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\StringTok{"fred"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, "fred"): is.numeric(winsorize) is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, 1:10): length(winsorize) == 1 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, -3): 0 < winsorize & winsorize < 0.5 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{identical}\NormalTok{(}\FunctionTok{winsorizedMean}\NormalTok{(x, }\FloatTok{0.001}\NormalTok{), }\FunctionTok{mean}\NormalTok{(x))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{identical}\NormalTok{(}\FunctionTok{winsorizedMean}\NormalTok{(x, }\FloatTok{0.499}\NormalTok{), }\FunctionTok{median}\NormalTok{(x))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+I was happy with this for a day or two, but then I started to wonder
+about the definition of the sample median being different for even and
+odd sample sizes. Is this still OK for odd \(n\)?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{21}\NormalTok{)}
+\FunctionTok{winsorizedMean}\NormalTok{(}\StringTok{"fred"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean("fred"): is.numeric(x) is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\FunctionTok{double}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\ConstantTok{NA\_real\_}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\ConstantTok{NaN}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] NaN
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\FloatTok{0.6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, 0.6): 0 < winsorize & winsorize < 0.5 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\StringTok{"fred"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, "fred"): is.numeric(winsorize) is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, 1:10): length(winsorize) == 1 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{winsorizedMean}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Error in winsorizedMean(1:10, -3): 0 < winsorize & winsorize < 0.5 is not TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{identical}\NormalTok{(}\FunctionTok{winsorizedMean}\NormalTok{(x, }\FloatTok{0.001}\NormalTok{), }\FunctionTok{mean}\NormalTok{(x))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{identical}\NormalTok{(}\FunctionTok{winsorizedMean}\NormalTok{(x, }\FloatTok{0.499}\NormalTok{), }\FunctionTok{median}\NormalTok{(x))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w1 }\OtherTok{\textless{}{-}} \FunctionTok{winsorizedMean}\NormalTok{(x)}
+\NormalTok{sx }\OtherTok{\textless{}{-}} \FunctionTok{sort}\NormalTok{(x)}
+\NormalTok{ilow }\OtherTok{\textless{}{-}} \FunctionTok{seq\_along}\NormalTok{(x) }\SpecialCharTok{\textless{}=} \FunctionTok{length}\NormalTok{(x) }\SpecialCharTok{*} \FloatTok{0.2}
+\NormalTok{ihig }\OtherTok{\textless{}{-}} \FunctionTok{rev}\NormalTok{(ilow)}
+\NormalTok{x.nonrep }\OtherTok{\textless{}{-}}\NormalTok{ sx[(}\SpecialCharTok{!}\NormalTok{ ilow) }\SpecialCharTok{\&}\NormalTok{ (}\SpecialCharTok{!}\NormalTok{ ihig)]}
+\NormalTok{sx[ilow] }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(x.nonrep)}
+\NormalTok{sx[ihig] }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(x.nonrep)}
+\NormalTok{w2 }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(sx)}
+\FunctionTok{identical}\NormalTok{(w1, w2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\hypertarget{summary}{%
+\section{Summary}\label{summary}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  R good!
+\item
+  Functions good!
+\item
+  Vectors good!
+\item
+  Vectorizing functions and operators good!
+\item
+  Higher-order functions good!
+\item
+  Global variables bad, except when they aren't.
+\item
+  Garbage in, error messages out (GIEMO)!
+\item
+  Design before you code!
+\item
+  Test to assure correctness!
+\item
+  Keep user interfaces simple. Don't make users memorize crazy special
+  cases like the R function \texttt{sample} does. KISS (keep it simple,
+  stupid)!
+\end{enumerate}
+
+\end{document}
